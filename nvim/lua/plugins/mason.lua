@@ -10,19 +10,6 @@ return {
             severity_sort = true,
             float = { border = "rounded", source = true },
         })
-
-        vim.lsp.config("pyright", {
-            settings = {
-                python = {
-                    analysis = {
-                        autoSearchPaths = true,
-                        useLibraryCodeForTypes = true,
-                        diagnosticMode = "openFilesOnly",
-                        typeCheckingMode = "basic",
-                    },
-                },
-            },
-        })
     end,
     opts = {},
     config = function(_, opts)

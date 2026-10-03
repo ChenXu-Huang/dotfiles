@@ -1,0 +1,3 @@
+# Keep LF line endings on checkout (matches .editorconfig), so the POSIX
+# setup script still works when the repository is cloned on Windows.
+* text=auto eol=lf

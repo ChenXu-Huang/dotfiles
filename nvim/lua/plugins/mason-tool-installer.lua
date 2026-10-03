@@ -1,10 +1,10 @@
 return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    event = "VeryLazy",
     opts = {
         ensure_installed = {
             "pyright",
             "ruff",
+            "lua-language-server",
         },
         auto_update = true,
         debounce_hours = 24,

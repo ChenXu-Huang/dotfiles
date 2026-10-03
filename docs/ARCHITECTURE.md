@@ -14,6 +14,9 @@ cross-platform setup scripts that link it into place.
 .
 ├── nvim/                 Neovim configuration (linked to the Neovim config path)
 │   ├── init.lua          Entry point: dynamic core-module loader
+│   ├── lsp/              One config per LSP server (auto-discovered by vim.lsp)
+│   │   ├── pyright.lua     Python language server settings
+│   │   └── lua_ls.lua      Lua language server settings (`vim` global)
 │   ├── lazy-lock.json    Plugin lockfile (git-ignored; machine-local)
 │   └── lua/
 │       ├── core/         Editor behavior, loaded eagerly in directory order
@@ -23,12 +26,12 @@ cross-platform setup scripts that link it into place.
 │       └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
 ├── scripts/              Setup scripts
 │   ├── setup.ps1         Windows: junction %LOCALAPPDATA%\nvim -> nvim/
-│   ├── setup.bat         Windows: directory symlink (cmd alternative)
-│   └── setup             Unix placeholder (sh, not yet implemented)
+│   └── setup.sh          macOS/Linux: symlink ~/.config/nvim -> nvim/
 ├── docs/                 Project documentation
 │   ├── ARCHITECTURE.md   This file
 │   └── CHANGELOG.md      Release history (Keep a Changelog format)
 ├── .editorconfig         Editor style: LF, UTF-8, 4-space indentation
+├── .gitattributes        Enforces LF checkout so POSIX scripts work everywhere
 ├── .gitignore            Ignores lazy-lock.json and temp/
 └── AGENTS.md             Instructions for AI coding agents
 ```
@@ -42,7 +45,10 @@ cross-platform setup scripts that link it into place.
    not break startup; failures surface as a `vim.notify` error.
 2. `core/basic.lua` applies editor options: hybrid line numbers, 4-space
    indentation, `ignorecase` + `smartcase` search, system-clipboard
-   integration, persistent undo, rounded window borders, etc.
+   integration, persistent undo, rounded window borders, etc. It also
+   prefers `pwsh` as the shell on every OS when the executable is available,
+   applying the required `shellcmdflag`/`shellquote`/`shellxquote`
+   adjustments on Windows only.
 3. `core/keymap.lua` defines global key mappings.
 4. `core/lazy.lua` bootstraps [lazy.nvim](https://github.com/folke/lazy.nvim)
    (cloning the stable branch on first run) and imports every file in
@@ -51,6 +57,18 @@ cross-platform setup scripts that link it into place.
 Because `lua/core/` is auto-loaded and `lua/plugins/` is auto-imported,
 **adding a file to either directory is all that is needed to extend the
 configuration** — no central registry must be edited.
+
+### LSP Server Configs
+
+- Per-server settings live in `nvim/lsp/<server>.lua` (one file per server,
+  named after the lspconfig server name, returning a `vim.lsp.config` table).
+  Neovim 0.11+ auto-discovers these files from the runtimepath and merges
+  them into `vim.lsp.config()`, so no loader or registry is involved.
+- `plugins/mason.lua` only defines the shared `vim.lsp.config("*", ...)`
+  defaults (blink.cmp capabilities, formatting delegated to none-ls) and the
+  global diagnostic appearance.
+- mason-lspconfig auto-enables every server installed by Mason; the packages
+  themselves are kept installed via `plugins/mason-tool-installer.lua`.
 
 ### Plugin Set
 
@@ -63,7 +81,7 @@ configuration** — no central registry must be edited.
 | `lspsaga.lua` | nvimdev/lspsaga.nvim | LSP UI enhancements |
 | `lualine.lua` | nvim-lualine/lualine.nvim | Statusline |
 | `mason.lua` | mason-org/mason-lspconfig.nvim | LSP server wiring on nvim-lspconfig |
-| `mason-tool-installer.lua` | WhoIsSethDaniel/mason-tool-installer.nvim | Ensures `pyright` and `ruff` are installed |
+| `mason-tool-installer.lua` | WhoIsSethDaniel/mason-tool-installer.nvim | Ensures `pyright`, `ruff` and `lua-language-server` (`lua_ls`) are installed |
 | `none-ls.lua` | nvimtools/none-ls.nvim | Non-LSP diagnostics/formatting sources |
 | `surround.lua` | kylechui/nvim-surround | Surrounding-pair editing |
 | `toggleterm.lua` | akinsho/toggleterm.nvim | Toggleable terminal |
@@ -90,17 +108,20 @@ tracked in Git:
 
 - **Windows (PowerShell)** — `scripts/setup.ps1` creates a *junction* from
   `%LOCALAPPDATA%\nvim` to the repo's `nvim/` folder. Junctions work without
-  Administrator privileges, so this is the preferred script.
-- **Windows (cmd)** — `scripts/setup.bat` does the same via `mklink /d`
-  (requires Developer Mode or elevated privileges). It sets `chcp 65001` for
-  UTF-8 console output.
-- **Unix** — `scripts/setup` is an `sh` placeholder; a symlink-based
-  implementation (targeting `~/.config/nvim`) is planned.
+  Administrator privileges.
+- **macOS / Linux (POSIX sh)** — `scripts/setup.sh` creates a *symbolic link*
+  from `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `nvim/` folder,
+  creating the config home first if needed.
+
+Both scripts are safe to re-run: when the target is already a link they
+skip; when a real config directory or file occupies the target they warn and
+exit, leaving the backup to the user.
 
 ## Conventions
 
 - **Editor style** (`.editorconfig`): LF line endings, UTF-8, final newline,
-  4-space indentation.
+  4-space indentation. `.gitattributes` enforces LF on checkout so
+  `scripts/setup.sh` also works from a Windows clone.
 - **Lockfile**: `nvim/lazy-lock.json` is git-ignored so each machine can float
   plugin versions independently.
 - **Temporary files** belong in `temp/` at the repository root (git-ignored).
