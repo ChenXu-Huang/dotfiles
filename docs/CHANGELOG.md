@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-03
+
 ### Added
 
 - `nvim/lua/plugins/mason.lua`: `lua_ls` (lua-language-server) configuration
@@ -29,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   indentation guides.
 - Neovide GUI settings in `nvim/lua/core/basic.lua`: JetBrainsMono Nerd Font,
   0.85 scale factor, 0.95 opacity, and 144 Hz refresh rate.
+- Neovim configuration under `nvim/` with an auto-loading `lua/core/`
+  directory (`basic.lua`, `keymap.lua`, `lazy.lua`) and per-plugin specs under
+  `lua/plugins/` managed by lazy.nvim.
+- Plugin set: blink.cmp, bufferline, hop, lspsaga, lualine, mason +
+  mason-lspconfig + mason-tool-installer (pyright, ruff), none-ls,
+  nvim-autopairs, nvim-surround, nvim-tree, toggleterm, tokyonight, and
+  nvim-treesitter.
+- Windows setup scripts (`scripts/setup.ps1`, `scripts/setup.bat`) linking the
+  repo's `nvim/` folder to `%LOCALAPPDATA%\nvim`; Unix `scripts/setup`
+  placeholder.
+- Repository hygiene: `.editorconfig` (LF, UTF-8, 4-space indent), `.gitignore`
+  (excludes `lazy-lock.json` and `temp/`), and initial `AGENTS.md`.
 
 ### Changed
 
@@ -66,22 +80,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not adjust them automatically), so toggleterm and external commands run
   under PowerShell 7 there.
 
-## [0.1.0] - Initial Configuration
-
-### Added
-
-- Neovim configuration under `nvim/` with an auto-loading `lua/core/`
-  directory (`basic.lua`, `keymap.lua`, `lazy.lua`) and per-plugin specs under
-  `lua/plugins/` managed by lazy.nvim.
-- Plugin set: blink.cmp, bufferline, hop, lspsaga, lualine, mason +
-  mason-lspconfig + mason-tool-installer (pyright, ruff), none-ls,
-  nvim-autopairs, nvim-surround, nvim-tree, toggleterm, tokyonight, and
-  nvim-treesitter.
-- Windows setup scripts (`scripts/setup.ps1`, `scripts/setup.bat`) linking the
-  repo's `nvim/` folder to `%LOCALAPPDATA%\nvim`; Unix `scripts/setup`
-  placeholder.
-- Repository hygiene: `.editorconfig` (LF, UTF-8, 4-space indent), `.gitignore`
-  (excludes `lazy-lock.json` and `temp/`), and initial `AGENTS.md`.
-
-[Unreleased]: ./CHANGELOG.md
-[0.1.0]: ./CHANGELOG.md
+[Unreleased]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/ChenXu-Huang/dotfiles/releases/tag/v0.1.0
