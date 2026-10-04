@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   nvim-tree, hop, toggleterm) so they show up in keymap listings; also fixed
   the descriptions in `nvim/lua/core/keymap.lua` being passed as an ignored
   fifth argument to `vim.keymap.set` instead of inside the options table.
+- Window title (`vim.opt.titlestring`) showing the current working directory,
+  and the lualine statusline now displays the working-directory basename next
+  to the git branch.
+- nvim-autopairs angle-bracket (`<`/`>`) rule for html, xml, lua, c, cpp,
+  typescript, and rust that only expands after a word character or a closing
+  delimiter.
+
+### Changed
+
+- nvim-tree follows the working directory (`sync_root_with_cwd`,
+  `respect_buf_cwd`) and reveals the focused file, updating the tree root
+  accordingly.
 
 ## [0.1.0] - 2026-10-03
 

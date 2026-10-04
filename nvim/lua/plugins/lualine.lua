@@ -12,7 +12,9 @@ return {
         },
         extensions = { "nvim-tree" },
         sections = {
-            lualine_b = { "branch", "diff" },
+            lualine_b = { function ()
+                return vim.fn.fnamemodify(vim.fn.getcwd(), ":t")
+            end, "branch", "diff" },
             lualine_x = {
                 "filesize",
                 "encoding",

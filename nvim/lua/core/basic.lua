@@ -21,6 +21,8 @@ vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 250
 vim.opt.undofile = true
 vim.opt.winborder = "rounded"
+vim.opt.title = true
+vim.opt.titlestring = "%{fnamemodify(getcwd(), ':~')} - nvim"
 
 if vim.fn.executable("pwsh") == 1 then
     vim.opt.shell = "pwsh"
