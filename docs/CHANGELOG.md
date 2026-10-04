@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/setup.sh` (macOS-first) and `scripts/setup.ps1` environment
+  checks: they warn when Neovim is missing or older than 0.11 and verify the
+  external dependencies of the main-branch nvim-treesitter (tree-sitter CLI
+  and a C compiler). Missing dependencies are installed automatically with
+  Homebrew on macOS and with Scoop on Windows; other cases print install
+  hints.
+- `-f`/`--force` (`-Force` on Windows) option for both setup scripts: a
+  foreign link at the target is removed, a real file or directory is backed
+  up to `nvim.bak.<timestamp>` before linking.
+- `scripts/setup.sh` strict mode (`set -eu`), platform detection, `--help`,
+  and colored output on interactive terminals.
 - `desc` descriptions on all custom key mappings (core, bufferline, lspsaga,
   nvim-tree, hop, toggleterm) so they show up in keymap listings; also fixed
   the descriptions in `nvim/lua/core/keymap.lua` being passed as an ignored
@@ -22,9 +33,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Both setup scripts now skip only when the target link already points at
+  this repository; a link pointing elsewhere is reported (and replaced with
+  `-f`/`-Force`) instead of being silently skipped.
 - nvim-tree follows the working directory (`sync_root_with_cwd`,
   `respect_buf_cwd`) and reveals the focused file, updating the tree root
   accordingly.
+
+### Fixed
+
+- `scripts/setup.sh` installed the wrong Homebrew package for the
+  nvim-treesitter dependency: the `tree-sitter` formula ships only the
+  `libtree-sitter` library, so the CLI was still missing afterwards. It now
+  installs the `tree-sitter-cli` formula.
 
 ## [0.1.0] - 2026-10-03
 

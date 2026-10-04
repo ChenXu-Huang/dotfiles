@@ -108,14 +108,25 @@ tracked in Git:
 
 - **Windows (PowerShell)** — `scripts/setup.ps1` creates a *junction* from
   `%LOCALAPPDATA%\nvim` to the repo's `nvim/` folder. Junctions work without
-  Administrator privileges.
+  Administrator privileges. Missing external dependencies of the main-branch
+  nvim-treesitter (`tree-sitter` CLI, `gcc`) are installed automatically with
+  [Scoop](https://scoop.sh) when it is available; the script also warns when
+  Neovim itself is missing or older than 0.11.
 - **macOS / Linux (POSIX sh)** — `scripts/setup.sh` creates a *symbolic link*
   from `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `nvim/` folder,
-  creating the config home first if needed.
+  creating the config home first if needed. macOS is the primary target; it
+  also installs the external dependencies of the main-branch nvim-treesitter
+  with Homebrew (the `tree-sitter-cli` formula — `tree-sitter` itself ships
+  only the library; the C compiler comes from the Xcode Command Line Tools)
+  and warns when Neovim itself is missing or older than
+  0.11. On Linux the same checks only print install hints.
 
-Both scripts are safe to re-run: when the target is already a link they
-skip; when a real config directory or file occupies the target they warn and
-exit, leaving the backup to the user.
+Both scripts check the environment before linking and are safe to re-run:
+when the target already points at this repository they skip; when a foreign
+link, real directory, or file occupies the target they warn and exit. Passing
+`-f`/`--force` (`-Force` on Windows) replaces the target instead — a foreign
+link is removed (never its contents), a real file or directory is backed up
+to `nvim.bak.<timestamp>` first.
 
 ## Conventions
 
