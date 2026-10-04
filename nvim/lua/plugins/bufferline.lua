@@ -25,12 +25,12 @@ return {
         "nvim-tree/nvim-web-devicons"
     },
     keys = {
-        { "<leader>bh", "<Cmd>BufferLineCyclePrev<CR>" },
-        { "<leader>bl", "<Cmd>BufferLineCycleNext<CR>" },
-        { "<leader>bp", "<Cmd>BufferLinePick<CR>" },
-        { "<leader>bc", "<Cmd>BufferLinePickClose<CR>" },
-        { "<leader>bd", "<Cmd>bdelete<CR>" },
-        { "<leader>bo", "<Cmd>BufferLineCloseOthers<CR>" }
+        { "<leader>bh", "<Cmd>BufferLineCyclePrev<CR>", desc = "Previous buffer" },
+        { "<leader>bl", "<Cmd>BufferLineCycleNext<CR>", desc = "Next buffer" },
+        { "<leader>bp", "<Cmd>BufferLinePick<CR>", desc = "Pick buffer" },
+        { "<leader>bc", "<Cmd>BufferLinePickClose<CR>", desc = "Pick buffer to close" },
+        { "<leader>bd", "<Cmd>bdelete<CR>", desc = "Delete buffer" },
+        { "<leader>bo", "<Cmd>BufferLineCloseOthers<CR>", desc = "Close other buffers" }
     },
     lazy = false
 }

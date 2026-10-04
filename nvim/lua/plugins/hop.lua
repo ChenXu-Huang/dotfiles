@@ -7,6 +7,6 @@ return {
         }
     end,
     keys = {
-        { "<leader>hp", "<Cmd>HopWord<CR>", desc = "hop word", silent = true },
+        { "<leader>hp", "<Cmd>HopWord<CR>", desc = "Hop to word", silent = true },
     },
 }

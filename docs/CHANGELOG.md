@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `desc` descriptions on all custom key mappings (core, bufferline, lspsaga,
+  nvim-tree, hop, toggleterm) so they show up in keymap listings; also fixed
+  the descriptions in `nvim/lua/core/keymap.lua` being passed as an ignored
+  fifth argument to `vim.keymap.set` instead of inside the options table.
+
 ## [0.1.0] - 2026-10-03
 
 ### Added

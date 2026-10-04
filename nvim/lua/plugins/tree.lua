@@ -9,6 +9,6 @@ return {
         },
     },
     keys = {
-        { "<leader>uf", "<Cmd>NvimTreeToggle<CR>" },
+        { "<leader>uf", "<Cmd>NvimTreeToggle<CR>", desc = "Toggle file tree" },
     },
 }

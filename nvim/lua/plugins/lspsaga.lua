@@ -9,12 +9,12 @@ return {
         },
     },
     keys = {
-        { "<leader>lr", "<Cmd>Lspsaga rename<CR>" },
-        { "<leader>lc", "<Cmd>Lspsaga code_action<CR>" },
-        { "<leader>ld", "<Cmd>Lspsaga definition<CR>" },
-        { "<leader>lh", "<Cmd>Lspsaga hover_doc<CR>" },
-        { "<leader>lR", "<Cmd>Lspsaga finder<CR>" },
-        { "<leader>ln", "<Cmd>Lspsaga diagnostic_jump_next<CR>" },
-        { "<leader>lp", "<Cmd>Lspsaga diagnostic_jump_prev<CR>" },
+        { "<leader>lr", "<Cmd>Lspsaga rename<CR>", desc = "Rename symbol" },
+        { "<leader>lc", "<Cmd>Lspsaga code_action<CR>", desc = "Code action" },
+        { "<leader>ld", "<Cmd>Lspsaga definition<CR>", desc = "Go to definition" },
+        { "<leader>lh", "<Cmd>Lspsaga hover_doc<CR>", desc = "Hover documentation" },
+        { "<leader>lR", "<Cmd>Lspsaga finder<CR>", desc = "Find references" },
+        { "<leader>ln", "<Cmd>Lspsaga diagnostic_jump_next<CR>", desc = "Next diagnostic" },
+        { "<leader>lp", "<Cmd>Lspsaga diagnostic_jump_prev<CR>", desc = "Previous diagnostic" },
     }
 }

@@ -18,21 +18,21 @@ return {
         persist_mode = true,
         on_open = function (term)
             local o = { buffer = term.bufnr, silent = true }
-            vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], o)
-            vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], o)
-            vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], o)
-            vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], o)
-            vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], o)
+            vim.keymap.set("t", "<Esc><Esc>", [[<C-\><C-n>]], vim.tbl_extend("force", o, { desc = "Exit terminal mode" }))
+            vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], vim.tbl_extend("force", o, { desc = "Focus left window" }))
+            vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], vim.tbl_extend("force", o, { desc = "Focus window below" }))
+            vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], vim.tbl_extend("force", o, { desc = "Focus window above" }))
+            vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], vim.tbl_extend("force", o, { desc = "Focus right window" }))
         end
     },
     keys = {
-        { "<leader>tt", "<Cmd>ToggleTerm<CR>", desc = "Open terminal" },
-        { "<A-t>", "<Cmd>ToggleTerm<CR>", mode = "t", "Close termianl" },
-        { "<leader>tf", "<Cmd>ToggleTerm direction=float<CR>" },
-        { "<leader>tv", "<Cmd>ToggleTerm direction=vertical<CR>" },
-        { "<leader>th", "<Cmd>ToggleTerm direction=horizontal<CR>" },
-        { "<leader>t1", "<Cmd>1ToggleTerm<CR>" },
-        { "<leader>t2", "<Cmd>2ToggleTerm<CR>" },
+        { "<leader>tt", "<Cmd>ToggleTerm<CR>", desc = "Toggle terminal" },
+        { "<A-t>", "<Cmd>ToggleTerm<CR>", mode = "t", desc = "Close terminal" },
+        { "<leader>tf", "<Cmd>ToggleTerm direction=float<CR>", desc = "Float terminal" },
+        { "<leader>tv", "<Cmd>ToggleTerm direction=vertical<CR>", desc = "Vertical terminal" },
+        { "<leader>th", "<Cmd>ToggleTerm direction=horizontal<CR>", desc = "Horizontal terminal" },
+        { "<leader>t1", "<Cmd>1ToggleTerm<CR>", desc = "Terminal 1" },
+        { "<leader>t2", "<Cmd>2ToggleTerm<CR>", desc = "Terminal 2" },
         { "<leader>td", function ()
             if not dsh_term then
                 local Terminal = require("toggleterm.terminal").Terminal
