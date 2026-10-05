@@ -1,5 +1,7 @@
 local dsh_term
 
+local shell = require("core.shell")
+
 return {
     "akinsho/toggleterm.nvim",
     version = "*",
@@ -37,11 +39,21 @@ return {
             if not dsh_term then
                 local Terminal = require("toggleterm.terminal").Terminal
                 dsh_term = Terminal:new({
-                    cmd = "dsh-tui --resume",
+                    cmd = shell.cmd("dsh-tui", { args = "--resume", requires = "node" }),
                     hidden = true,
                     direction = "vertical",
                     count = 99,
-                    close_on_edit = true,
+                    close_on_exit = false,
+                    on_exit = function (term, _, code)
+                        if code == 0 then
+                            term:close()
+                            if vim.api.nvim_buf_is_loaded(term.bufnr) then
+                                vim.api.nvim_buf_delete(term.bufnr, { force = true })
+                            end
+                        elseif code then
+                            vim.notify("dsh-tui exited with code " .. tostring(code), vim.log.levels.WARN)
+                        end
+                    end,
                     on_open = function (term)
                         for _, lhs in ipairs({"<Esc><Esc", "<C-h>", "<C-j>", "<C-k>", "<C-l>" }) do
                             pcall(vim.keymap.del, "t", lhs, { buffer = term.border })

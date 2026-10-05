@@ -46,6 +46,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   nvim-treesitter dependency: the `tree-sitter` formula ships only the
   `libtree-sitter` library, so the CLI was still missing afterwards. It now
   installs the `tree-sitter-cli` formula.
+- `nvim/lua/core/shell.lua`: `shell.cmd(program, { args, requires })` builds the
+  command string for a terminal program. When the editor's own `PATH` cannot
+  resolve it (`requires` names anything else it needs, such as `node` for a
+  `#!/usr/bin/env node` shim), it defers to the user's login shell in
+  interactive mode (`$SHELL -lic 'exec …'`), which loads `~/.zshrc`/`~/.profile`
+  itself; Windows always gets the plain command, since the registry `PATH` is
+  visible to GUI processes.
+- `nvim/lua/plugins/toggleterm.lua`: `<leader>td` uses that helper for
+  `dsh-tui --resume`. toggleterm runs commands through a non-interactive shell
+  (`&shell -c`), which never reads `~/.zshrc` — the file where nvm and friends
+  put themselves on `PATH` — so the mapping failed with `command not found`
+  whenever the editor had not inherited them. The terminal also sets
+  `close_on_exit = false` — the option the spec misspelled as `close_on_edit`,
+  which toggleterm does not have — so a failing `dsh-tui` leaves its window and
+  error text on screen instead of vanishing instantly (a clean exit still
+  closes the window).
 
 ## [0.1.0] - 2026-10-03
 

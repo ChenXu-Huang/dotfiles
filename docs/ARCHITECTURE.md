@@ -22,7 +22,8 @@ cross-platform setup scripts that link it into place.
 │       ├── core/         Editor behavior, loaded eagerly in directory order
 │       │   ├── basic.lua   Options (line numbers, indentation, search, UI...)
 │       │   ├── keymap.lua  Global key mappings
-│       │   └── lazy.lua    lazy.nvim bootstrap and plugin-spec import
+│       │   ├── lazy.lua    lazy.nvim bootstrap and plugin-spec import
+│       │   └── shell.lua   Utility: build a command any user shell can resolve
 │       └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
 ├── scripts/              Setup scripts
 │   ├── setup.ps1         Windows: junction %LOCALAPPDATA%\nvim -> nvim/
