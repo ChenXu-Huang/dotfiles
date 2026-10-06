@@ -105,6 +105,7 @@ layers:
 | `autopairs.lua` | windwp/nvim-autopairs | Automatic bracket/quote pairing |
 | `blink.lua` | saghen/blink.cmp | Completion engine (with friendly-snippets) |
 | `bufferline.lua` | akinsho/bufferline.nvim | Buffer tabs |
+| `gitsigns.lua` | lewis6991/gitsigns.nvim | Git hunk signs in the signcolumn with `]h`/`[h` and `<leader>uh` mappings |
 | `hop.lua` | smoka7/hop.nvim | Jump-to-anywhere motion |
 | `lspsaga.lua` | nvimdev/lspsaga.nvim | LSP UI enhancements |
 | `lualine.lua` | nvim-lualine/lualine.nvim | Statusline |

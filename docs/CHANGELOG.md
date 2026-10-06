@@ -48,6 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   like the launchd default and runs in the background otherwise, and failures
   and Windows leave the environment untouched.
   `nvim/lua/core/init.lua` calls it before the other core modules load.
+- `nvim/lua/plugins/gitsigns.lua`: gitsigns.nvim for git hunk signs, with
+  hunk navigation on `]h`/`[h` and `<leader>uh` mappings for preview, stage,
+  reset, blame and diff.
 
 ### Changed
 
