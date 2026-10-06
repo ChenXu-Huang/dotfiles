@@ -19,11 +19,11 @@ cross-platform setup scripts that link it into place.
 │   │   └── lua_ls.lua      Lua language server settings (`vim` global)
 │   ├── lazy-lock.json    Plugin lockfile (git-ignored; machine-local)
 │   └── lua/
-│       ├── core/         Editor behavior, loaded eagerly in directory order
+│       ├── core/         Editor behavior, loaded eagerly in list order
 │       │   ├── basic.lua   Options (line numbers, indentation, search, UI...)
 │       │   ├── keymap.lua  Global key mappings
 │       │   ├── lazy.lua    lazy.nvim bootstrap and plugin-spec import
-│       │   └── shell.lua   Utility: build a command any user shell can resolve
+│       │   └── shell.lua   Login-shell commands and environment import
 │       └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
 ├── scripts/              Setup scripts
 │   ├── setup.ps1         Windows: junction %LOCALAPPDATA%\nvim -> nvim/
@@ -41,9 +41,10 @@ cross-platform setup scripts that link it into place.
 
 ### Startup Flow
 
-1. `init.lua` scans `lua/core/` and `require()`s every `.lua` file it finds
-   (except itself), wrapping each load in `pcall` so one failing module does
-   not break startup; failures surface as a `vim.notify` error.
+1. `init.lua` requires `core`, and `core/init.lua` loads the modules in a fixed
+   order: `core/shell.lua`'s `sync_env()` first (so tools are resolvable before
+   any plugin runs), then `core/basic.lua`, `core/keymap.lua` and
+   `core/lazy.lua`.
 2. `core/basic.lua` applies editor options: hybrid line numbers, 4-space
    indentation, `ignorecase` + `smartcase` search, system-clipboard
    integration, persistent undo, rounded window borders, etc. It also
@@ -55,9 +56,34 @@ cross-platform setup scripts that link it into place.
    (cloning the stable branch on first run) and imports every file in
    `lua/plugins/` as a plugin spec.
 
-Because `lua/core/` is auto-loaded and `lua/plugins/` is auto-imported,
-**adding a file to either directory is all that is needed to extend the
-configuration** — no central registry must be edited.
+Because `lua/plugins/` is auto-imported and `lua/core/` is one module per
+concern, **adding a plugin spec file is all that is needed to extend the plugin
+set**; a new core module is picked up by adding its `require` to
+`core/init.lua`.
+
+### Shell Environment
+
+Neovide opened from Finder/Dock (or any launcher that does not read `.zshrc`)
+inherits the launchd `PATH`, so nvm's `node`/`npm`, Homebrew tools and
+variables such as `NVM_DIR` are missing — Mason then fails with
+`Could not find executable "npm" in PATH`. `core/shell.lua` covers this in two
+layers:
+
+- `shell.cmd(program, { requires = … })` builds a command that the user's login
+  shell resolves at execution time (used by toggleterm).
+- `sync_env()` imports the login environment once per session: it runs
+  `$SHELL -lic 'command env'`, puts the login `PATH` entries in front of the
+  current ones and fills in other variables only where they are unset. The
+  resolved `PATH` is cached in `stdpath("cache")/shell-path` (nothing else, so no
+  secrets land on disk). A cached `PATH` is applied instantly and refreshed in
+  the background; without a cache the fetch blocks startup only when the `PATH`
+  looks like the launchd default, and otherwise runs in the background as well.
+  A `PATH` that already contains the login entries is left alone, while missing
+  variables are filled in either way, and `sync_env()` reports `synced`,
+  `cached`, `async`, `failed` or `skipped` (also kept in `require("core.shell").status`).
+  A missing shell, a timeout or empty output leaves the environment untouched;
+  Windows is skipped; the fetch child gets a neutral `PATH`, so previously
+  imported entries cannot feed back into the cache.
 
 ### LSP Server Configs
 
@@ -67,7 +93,8 @@ configuration** — no central registry must be edited.
   them into `vim.lsp.config()`, so no loader or registry is involved.
 - `plugins/mason.lua` only defines the shared `vim.lsp.config("*", ...)`
   defaults (blink.cmp capabilities, formatting delegated to none-ls) and the
-  global diagnostic appearance.
+  global diagnostic appearance. Language servers keep their formatting
+  capability disabled on purpose, so `<leader>lf` never mixes two formatters.
 - mason-lspconfig auto-enables every server installed by Mason; the packages
   themselves are kept installed via `plugins/mason-tool-installer.lua`.
 
@@ -82,8 +109,8 @@ configuration** — no central registry must be edited.
 | `lspsaga.lua` | nvimdev/lspsaga.nvim | LSP UI enhancements |
 | `lualine.lua` | nvim-lualine/lualine.nvim | Statusline |
 | `mason.lua` | mason-org/mason-lspconfig.nvim | LSP server wiring on nvim-lspconfig |
-| `mason-tool-installer.lua` | WhoIsSethDaniel/mason-tool-installer.nvim | Ensures `pyright`, `ruff` and `lua-language-server` (`lua_ls`) are installed |
-| `none-ls.lua` | nvimtools/none-ls.nvim | Non-LSP diagnostics/formatting sources |
+| `mason-tool-installer.lua` | WhoIsSethDaniel/mason-tool-installer.nvim | Ensures `pyright`, `ruff`, `stylua` and `lua-language-server` (`lua_ls`) are installed |
+| `none-ls.lua` | nvimtools/none-ls.nvim | Dedicated formatting/diagnostics sources: ruff (Python) and stylua (Lua); `<leader>lf` formats through it |
 | `surround.lua` | kylechui/nvim-surround | Surrounding-pair editing |
 | `toggleterm.lua` | akinsho/toggleterm.nvim | Toggleable terminal |
 | `tokyonight.lua` | folke/tokyonight.nvim | Colorscheme |

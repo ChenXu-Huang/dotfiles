@@ -4,6 +4,7 @@ return {
         ensure_installed = {
             "pyright",
             "ruff",
+            "stylua",
             "lua-language-server",
         },
         auto_update = true,

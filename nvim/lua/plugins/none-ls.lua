@@ -10,6 +10,7 @@ return {
             sources = {
                 require("none-ls.formatting.ruff_format"),
                 require("none-ls.formatting.ruff"),
+                require("null-ls.builtins.formatting.stylua"),
             },
         }
     end,

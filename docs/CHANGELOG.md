@@ -30,6 +30,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - nvim-autopairs angle-bracket (`<`/`>`) rule for html, xml, lua, c, cpp,
   typescript, and rust that only expands after a word character or a closing
   delimiter.
+- `nvim/lua/plugins/none-ls.lua`: StyLua as the Lua formatter
+  (`null-ls.builtins.formatting.stylua`), so Lua is formatted by a dedicated
+  formatter like Python already is with ruff. The style comes from the existing
+  `.editorconfig` (4 spaces, LF) — StyLua reads it when no `stylua.toml`
+  exists, so none is added. `nvim/lua/plugins/mason-tool-installer.lua` ensures
+  the `stylua` binary is installed (`:MasonToolsUpdate`; the automatic check on
+  start is throttled by `debounce_hours`).
+- `nvim/lua/core/shell.lua`: `sync_env()` imports the login-shell environment
+  when the editor is started outside a terminal, where `.zshrc` never ran — that
+  is why Neovide from Finder/Dock could not find nvm's `node`/`npm`, Homebrew
+  tools or `NVM_DIR`, and why Mason failed with
+  `Could not find executable "npm" in PATH`. `PATH` is merged, other variables
+  are filled in only when unset, and the resolved `PATH` is cached in
+  `stdpath("cache")/shell-path` so later starts apply it without paying for
+  another shell startup; the fetch blocks startup only when the `PATH` looks
+  like the launchd default and runs in the background otherwise, and failures
+  and Windows leave the environment untouched.
+  `nvim/lua/core/init.lua` calls it before the other core modules load.
 
 ### Changed
 
@@ -39,6 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - nvim-tree follows the working directory (`sync_root_with_cwd`,
   `respect_buf_cwd`) and reveals the focused file, updating the tree root
   accordingly.
+- `AGENTS.md`: the code style now forbids comments unless the user asks for
+  one; the explanatory comments that came with the StyLua support were removed
+  to match.
 
 ### Fixed
 
