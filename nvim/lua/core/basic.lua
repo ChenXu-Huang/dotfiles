@@ -35,7 +35,7 @@ end
 
 if vim.g.neovide then
     vim.o.guifont = "JetBrainsMono Nerd Font Mono"
-    vim.g.neovide_scale_factor = 0.85
+    vim.g.neovide_scale_factor = 0.9
     vim.g.neovide_opacity = 0.95
     vim.g.neovide_cursur_animation_length = 0.13
     vim.g.neovide_cursur_vfx_mode = "railgun"

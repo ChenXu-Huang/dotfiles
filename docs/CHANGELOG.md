@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AGENTS.md`: the code style now forbids comments unless the user asks for
   one; the explanatory comments that came with the StyLua support were removed
   to match.
+- `nvim/lua/core/basic.lua`: the Neovide scale factor is 0.9 instead of 0.85.
 
 ### Fixed
 
