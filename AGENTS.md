@@ -34,6 +34,8 @@ those things.
 - Neovim plugin specs go in `nvim/lua/plugins/` (one file per plugin, returned
   as a lazy.nvim spec); core editor behavior goes in `nvim/lua/core/`. Both
   directories are auto-loaded — do not add central registries for them.
+- Do not add comments to code: let the code explain itself. Write a comment
+  only when the user asks for one.
 - `nvim/lazy-lock.json` is intentionally git-ignored; never commit it.
 
 ## Temporary Files
