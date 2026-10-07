@@ -11,6 +11,8 @@ This is a personal dotfiles repository. Its main contents are:
 - `scripts/` — cross-platform setup scripts that link `.config/nvim/` into
   Neovim's config location.
 - `docs/` — project documentation.
+- `README.md` — the user-facing entry point: requirements, installation, key
+  mappings and links into `docs/`.
 
 **Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before making structural
 changes.** It documents the repository layout, the Neovim startup flow, the

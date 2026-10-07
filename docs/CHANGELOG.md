@@ -53,6 +53,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.config/nvim/lua/plugins/gitsigns.lua`: gitsigns.nvim for git hunk signs,
   with hunk navigation on `]h`/`[h` and `<leader>uh` mappings for preview,
   stage, reset, blame and diff.
+- `README.md`: the user-facing entry point — requirements, installation with
+  both setup scripts (flags, what they link, how to undo it), repository
+  layout, the key mappings and links into `docs/`.
 
 ### Changed
 

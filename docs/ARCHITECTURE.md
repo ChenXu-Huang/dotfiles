@@ -32,6 +32,7 @@ cross-platform setup scripts that link it into place.
 ├── docs/                 Project documentation
 │   ├── ARCHITECTURE.md   This file
 │   └── CHANGELOG.md      Release history (Keep a Changelog format)
+├── README.md             Entry point: requirements, installation, mappings
 ├── .editorconfig         Editor style: LF, UTF-8, 4-space indentation
 ├── .gitattributes        Enforces LF checkout so POSIX scripts work everywhere
 ├── .gitignore            Ignores lazy-lock.json, temp/ and OS metadata files
