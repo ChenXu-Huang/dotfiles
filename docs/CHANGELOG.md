@@ -54,6 +54,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The Neovim configuration moved from `nvim/` to `.config/nvim/`, mirroring
+  the layout of the XDG config home; both setup scripts and the documentation
+  now resolve the configuration from `.config/nvim`.
 - Both setup scripts now skip only when the target link already points at
   this repository; a link pointing elsewhere is reported (and replaced with
   `-f`/`-Force`) instead of being silently skipped.

@@ -12,28 +12,29 @@ cross-platform setup scripts that link it into place.
 
 ```
 .
-├── nvim/                 Neovim configuration (linked to the Neovim config path)
-│   ├── init.lua          Entry point: dynamic core-module loader
-│   ├── lsp/              One config per LSP server (auto-discovered by vim.lsp)
-│   │   ├── pyright.lua     Python language server settings
-│   │   └── lua_ls.lua      Lua language server settings (`vim` global)
-│   ├── lazy-lock.json    Plugin lockfile (git-ignored; machine-local)
-│   └── lua/
-│       ├── core/         Editor behavior, loaded eagerly in list order
-│       │   ├── basic.lua   Options (line numbers, indentation, search, UI...)
-│       │   ├── keymap.lua  Global key mappings
-│       │   ├── lazy.lua    lazy.nvim bootstrap and plugin-spec import
-│       │   └── shell.lua   Login-shell commands and environment import
-│       └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
+├── .config/                  Neovim's config home, mirrored from this repository
+│   └── nvim/                 Neovim configuration (linked to the Neovim config path)
+│       ├── init.lua          Entry point: dynamic core-module loader
+│       ├── lsp/              One config per LSP server (auto-discovered by vim.lsp)
+│       │   ├── pyright.lua     Python language server settings
+│       │   └── lua_ls.lua      Lua language server settings (`vim` global)
+│       ├── lazy-lock.json    Plugin lockfile (git-ignored; machine-local)
+│       └── lua/
+│           ├── core/         Editor behavior, loaded eagerly in list order
+│           │   ├── basic.lua   Options (line numbers, indentation, search, UI...)
+│           │   ├── keymap.lua  Global key mappings
+│           │   ├── lazy.lua    lazy.nvim bootstrap and plugin-spec import
+│           │   └── shell.lua   Login-shell commands and environment import
+│           └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
 ├── scripts/              Setup scripts
-│   ├── setup.ps1         Windows: junction %LOCALAPPDATA%\nvim -> nvim/
-│   └── setup.sh          macOS/Linux: symlink ~/.config/nvim -> nvim/
+│   ├── setup.ps1         Windows: junction %LOCALAPPDATA%\nvim -> .config/nvim
+│   └── setup.sh          macOS/Linux: symlink ~/.config/nvim -> .config/nvim
 ├── docs/                 Project documentation
 │   ├── ARCHITECTURE.md   This file
 │   └── CHANGELOG.md      Release history (Keep a Changelog format)
 ├── .editorconfig         Editor style: LF, UTF-8, 4-space indentation
 ├── .gitattributes        Enforces LF checkout so POSIX scripts work everywhere
-├── .gitignore            Ignores lazy-lock.json and temp/
+├── .gitignore            Ignores lazy-lock.json, temp/ and OS metadata files
 └── AGENTS.md             Instructions for AI coding agents
 ```
 
@@ -87,8 +88,9 @@ layers:
 
 ### LSP Server Configs
 
-- Per-server settings live in `nvim/lsp/<server>.lua` (one file per server,
-  named after the lspconfig server name, returning a `vim.lsp.config` table).
+- Per-server settings live in `.config/nvim/lsp/<server>.lua` (one file per
+  server, named after the lspconfig server name, returning a `vim.lsp.config`
+  table).
   Neovim 0.11+ auto-discovers these files from the runtimepath and merges
   them into `vim.lsp.config()`, so no loader or registry is involved.
 - `plugins/mason.lua` only defines the shared `vim.lsp.config("*", ...)`
@@ -131,23 +133,23 @@ layers:
 
 ## Setup Scripts
 
-The setup scripts make the in-repo `nvim/` directory visible at Neovim's
-expected config location, so the configuration is edited in one place and
-tracked in Git:
+The setup scripts make the in-repo `.config/nvim/` directory visible at
+Neovim's expected config location, so the configuration is edited in one place
+and tracked in Git:
 
 - **Windows (PowerShell)** — `scripts/setup.ps1` creates a *junction* from
-  `%LOCALAPPDATA%\nvim` to the repo's `nvim/` folder. Junctions work without
-  Administrator privileges. Missing external dependencies of the main-branch
-  nvim-treesitter (`tree-sitter` CLI, `gcc`) are installed automatically with
-  [Scoop](https://scoop.sh) when it is available; the script also warns when
-  Neovim itself is missing or older than 0.11.
+  `%LOCALAPPDATA%\nvim` to the repo's `.config/nvim/` folder. Junctions work
+  without Administrator privileges. Missing external dependencies of the
+  main-branch nvim-treesitter (`tree-sitter` CLI, `gcc`) are installed
+  automatically with [Scoop](https://scoop.sh) when it is available; the script
+  also warns when Neovim itself is missing or older than 0.11.
 - **macOS / Linux (POSIX sh)** — `scripts/setup.sh` creates a *symbolic link*
-  from `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `nvim/` folder,
-  creating the config home first if needed. macOS is the primary target; it
-  also installs the external dependencies of the main-branch nvim-treesitter
-  with Homebrew (the `tree-sitter-cli` formula — `tree-sitter` itself ships
-  only the library; the C compiler comes from the Xcode Command Line Tools)
-  and warns when Neovim itself is missing or older than
+  from `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `.config/nvim/`
+  folder, creating the config home first if needed. macOS is the primary
+  target; it also installs the external dependencies of the main-branch
+  nvim-treesitter with Homebrew (the `tree-sitter-cli` formula — `tree-sitter`
+  itself ships only the library; the C compiler comes from the Xcode Command
+  Line Tools) and warns when Neovim itself is missing or older than
   0.11. On Linux the same checks only print install hints.
 
 Both scripts check the environment before linking and are safe to re-run:
@@ -162,8 +164,8 @@ to `nvim.bak.<timestamp>` first.
 - **Editor style** (`.editorconfig`): LF line endings, UTF-8, final newline,
   4-space indentation. `.gitattributes` enforces LF on checkout so
   `scripts/setup.sh` also works from a Windows clone.
-- **Lockfile**: `nvim/lazy-lock.json` is git-ignored so each machine can float
-  plugin versions independently.
+- **Lockfile**: `.config/nvim/lazy-lock.json` is git-ignored so each machine
+  can float plugin versions independently.
 - **Temporary files** belong in `temp/` at the repository root (git-ignored).
 - **History** is recorded in [CHANGELOG.md](CHANGELOG.md) following
   [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).

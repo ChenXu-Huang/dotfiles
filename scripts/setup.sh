@@ -1,5 +1,5 @@
 #!/bin/sh
-# Link this repository's nvim/ directory into Neovim's config location.
+# Link this repository's .config/nvim directory into Neovim's config location.
 # Primary target: macOS (Darwin); Linux works identically via XDG paths.
 set -eu
 
@@ -9,7 +9,7 @@ usage() {
     cat <<'EOF'
 Usage: setup.sh [-f|--force] [-h|--help]
 
-Links the repository's nvim/ directory to ${XDG_CONFIG_HOME:-~/.config}/nvim.
+Links the repository's .config/nvim directory to ${XDG_CONFIG_HOME:-~/.config}/nvim.
 
 Options:
   -f, --force   Replace an existing target: a foreign link is removed, a real
@@ -145,12 +145,12 @@ fi
 # --- Resolve paths ---------------------------------------------------------
 
 ROOT_DIR=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
-SOURCE="$ROOT_DIR/nvim"
+SOURCE="$ROOT_DIR/.config/nvim"
 CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
 TARGET="$CONFIG_HOME/nvim"
 
 if [ ! -d "$SOURCE" ]; then
-    error "expected nvim/ directory not found at $SOURCE"
+    error "expected .config/nvim directory not found at $SOURCE"
     exit 1
 fi
 

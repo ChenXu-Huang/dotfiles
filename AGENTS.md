@@ -6,9 +6,10 @@ Guidance for AI coding agents working in this repository.
 
 This is a personal dotfiles repository. Its main contents are:
 
-- `nvim/` — a Neovim configuration (lazy.nvim-based, one plugin spec per file).
-- `scripts/` — cross-platform setup scripts that link `nvim/` into Neovim's
-  config location.
+- `.config/nvim/` — a Neovim configuration (lazy.nvim-based, one plugin spec per
+  file).
+- `scripts/` — cross-platform setup scripts that link `.config/nvim/` into
+  Neovim's config location.
 - `docs/` — project documentation.
 
 **Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before making structural
@@ -31,12 +32,13 @@ those things.
 
 - Follow `.editorconfig`: LF line endings, UTF-8, final newline, 4-space
   indentation.
-- Neovim plugin specs go in `nvim/lua/plugins/` (one file per plugin, returned
-  as a lazy.nvim spec); core editor behavior goes in `nvim/lua/core/`. Both
-  directories are auto-loaded — do not add central registries for them.
+- Neovim plugin specs go in `.config/nvim/lua/plugins/` (one file per plugin,
+  returned as a lazy.nvim spec); core editor behavior goes in
+  `.config/nvim/lua/core/`. Both directories are auto-loaded — do not add
+  central registries for them.
 - Do not add comments to code: let the code explain itself. Write a comment
   only when the user asks for one.
-- `nvim/lazy-lock.json` is intentionally git-ignored; never commit it.
+- `.config/nvim/lazy-lock.json` is intentionally git-ignored; never commit it.
 
 ## Temporary Files
 

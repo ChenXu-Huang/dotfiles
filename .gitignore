@@ -1,5 +1,9 @@
-# nvim
+# config
 lazy-lock.json
 
 # repo
 temp/
+
+# os
+.DS_Store
+Desktop.ini

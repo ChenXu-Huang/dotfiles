@@ -1,4 +1,4 @@
-# Link this repository's nvim/ directory into Neovim's config location.
+# Link this repository's .config/nvim directory into Neovim's config location.
 # Creates a junction at %LOCALAPPDATA%\nvim (no Administrator rights needed).
 [CmdletBinding()]
 param(
@@ -65,11 +65,11 @@ if (-not (Install-ScoopPackage 'gcc' 'gcc')) { $MissingDeps = $true }
 # --- Resolve paths ----------------------------------------------------------
 
 $RootDir = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$Source = Join-Path $RootDir 'nvim'
+$Source = Join-Path $RootDir '.config/nvim'
 $Target = Join-Path $env:LOCALAPPDATA 'nvim'
 
 if (-not (Test-Path $Source -PathType Container)) {
-    Write-Error "expected nvim/ directory not found at $Source"
+    Write-Error "expected .config/nvim directory not found at $Source"
     exit 1
 }
 
