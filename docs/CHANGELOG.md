@@ -22,35 +22,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and colored output on interactive terminals.
 - `desc` descriptions on all custom key mappings (core, bufferline, lspsaga,
   nvim-tree, hop, toggleterm) so they show up in keymap listings; also fixed
-  the descriptions in `nvim/lua/core/keymap.lua` being passed as an ignored
-  fifth argument to `vim.keymap.set` instead of inside the options table.
+  the descriptions in `.config/nvim/lua/core/keymap.lua` being passed as an
+  ignored fifth argument to `vim.keymap.set` instead of inside the options
+  table.
 - Window title (`vim.opt.titlestring`) showing the current working directory,
   and the lualine statusline now displays the working-directory basename next
   to the git branch.
 - nvim-autopairs angle-bracket (`<`/`>`) rule for html, xml, lua, c, cpp,
   typescript, and rust that only expands after a word character or a closing
   delimiter.
-- `nvim/lua/plugins/none-ls.lua`: StyLua as the Lua formatter
+- `.config/nvim/lua/plugins/none-ls.lua`: StyLua as the Lua formatter
   (`null-ls.builtins.formatting.stylua`), so Lua is formatted by a dedicated
   formatter like Python already is with ruff. The style comes from the existing
   `.editorconfig` (4 spaces, LF) — StyLua reads it when no `stylua.toml`
-  exists, so none is added. `nvim/lua/plugins/mason-tool-installer.lua` ensures
-  the `stylua` binary is installed (`:MasonToolsUpdate`; the automatic check on
+  exists, so none is added.
+  `.config/nvim/lua/plugins/mason-tool-installer.lua` ensures the `stylua`
+  binary is installed (`:MasonToolsUpdate`; the automatic check on
   start is throttled by `debounce_hours`).
-- `nvim/lua/core/shell.lua`: `sync_env()` imports the login-shell environment
-  when the editor is started outside a terminal, where `.zshrc` never ran — that
-  is why Neovide from Finder/Dock could not find nvm's `node`/`npm`, Homebrew
-  tools or `NVM_DIR`, and why Mason failed with
+- `.config/nvim/lua/core/shell.lua`: `sync_env()` imports the login-shell
+  environment when the editor is started outside a terminal, where `.zshrc`
+  never ran — that is why Neovide from Finder/Dock could not find nvm's
+  `node`/`npm`, Homebrew tools or `NVM_DIR`, and why Mason failed with
   `Could not find executable "npm" in PATH`. `PATH` is merged, other variables
   are filled in only when unset, and the resolved `PATH` is cached in
   `stdpath("cache")/shell-path` so later starts apply it without paying for
   another shell startup; the fetch blocks startup only when the `PATH` looks
   like the launchd default and runs in the background otherwise, and failures
   and Windows leave the environment untouched.
-  `nvim/lua/core/init.lua` calls it before the other core modules load.
-- `nvim/lua/plugins/gitsigns.lua`: gitsigns.nvim for git hunk signs, with
-  hunk navigation on `]h`/`[h` and `<leader>uh` mappings for preview, stage,
-  reset, blame and diff.
+  `.config/nvim/lua/core/init.lua` calls it before the other core modules load.
+- `.config/nvim/lua/plugins/gitsigns.lua`: gitsigns.nvim for git hunk signs,
+  with hunk navigation on `]h`/`[h` and `<leader>uh` mappings for preview,
+  stage, reset, blame and diff.
 
 ### Changed
 
@@ -63,10 +65,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - nvim-tree follows the working directory (`sync_root_with_cwd`,
   `respect_buf_cwd`) and reveals the focused file, updating the tree root
   accordingly.
+- nvim-tree no longer hides git-ignored entries
+  (`filters.git_ignored = false`) and dims them through
+  `renderer.highlight_git = "name"`, which renders the `!!` status with
+  `NvimTreeGitFileIgnoredHL` (linked to `Comment`).
+- `filters.dotfiles` stays at its default `false`, which means names starting
+  with `.` are *not* filtered and stay visible. `.DS_Store` and `Desktop.ini`
+  are therefore excluded explicitly, by name at any depth, through
+  `filters.custom = { "^\.DS_Store$", "^Desktop\.ini$" }`; the `I` and `H`
+  toggles do not affect them, only the custom-filter toggle `U` does.
 - `AGENTS.md`: the code style now forbids comments unless the user asks for
   one; the explanatory comments that came with the StyLua support were removed
   to match.
-- `nvim/lua/core/basic.lua`: the Neovide scale factor is 0.9 instead of 0.85.
+- `.config/nvim/lua/core/basic.lua`: the Neovide scale factor is 0.9 instead
+  of 0.85.
 
 ### Fixed
 
@@ -74,22 +86,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   nvim-treesitter dependency: the `tree-sitter` formula ships only the
   `libtree-sitter` library, so the CLI was still missing afterwards. It now
   installs the `tree-sitter-cli` formula.
-- `nvim/lua/core/shell.lua`: `shell.cmd(program, { args, requires })` builds the
-  command string for a terminal program. When the editor's own `PATH` cannot
-  resolve it (`requires` names anything else it needs, such as `node` for a
-  `#!/usr/bin/env node` shim), it defers to the user's login shell in
-  interactive mode (`$SHELL -lic 'exec …'`), which loads `~/.zshrc`/`~/.profile`
-  itself; Windows always gets the plain command, since the registry `PATH` is
-  visible to GUI processes.
-- `nvim/lua/plugins/toggleterm.lua`: `<leader>td` uses that helper for
-  `dsh-tui --resume`. toggleterm runs commands through a non-interactive shell
-  (`&shell -c`), which never reads `~/.zshrc` — the file where nvm and friends
-  put themselves on `PATH` — so the mapping failed with `command not found`
-  whenever the editor had not inherited them. The terminal also sets
-  `close_on_exit = false` — the option the spec misspelled as `close_on_edit`,
-  which toggleterm does not have — so a failing `dsh-tui` leaves its window and
-  error text on screen instead of vanishing instantly (a clean exit still
-  closes the window).
+- `.config/nvim/lua/core/shell.lua`: `shell.cmd(program, { args, requires })`
+  builds the command string for a terminal program. When the editor's own
+  `PATH` cannot resolve it (`requires` names anything else it needs, such as
+  `node` for a `#!/usr/bin/env node` shim), it defers to the user's login
+  shell in interactive mode (`$SHELL -lic 'exec …'`), which loads
+  `~/.zshrc`/`~/.profile` itself; Windows always gets the plain command, since
+  the registry `PATH` is visible to GUI processes.
+- `.config/nvim/lua/plugins/toggleterm.lua`: `<leader>td` uses that helper
+  for `dsh-tui --resume`. toggleterm runs commands through a non-interactive
+  shell (`&shell -c`), which never reads `~/.zshrc` — the file where nvm and
+  friends put themselves on `PATH` — so the mapping failed with
+  `command not found` whenever the editor had not inherited them. The terminal
+  also sets `close_on_exit = false` — the option the spec misspelled as
+  `close_on_edit`, which toggleterm does not have — so a failing `dsh-tui`
+  leaves its window and error text on screen instead of vanishing instantly (a
+  clean exit still closes the window).
 
 ## [0.1.0] - 2026-10-03
 

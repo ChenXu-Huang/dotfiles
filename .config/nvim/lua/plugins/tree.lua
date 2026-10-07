@@ -2,6 +2,14 @@ return {
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
+        filters = {
+            dotfiles = false,
+            git_ignored = false,
+            custom = { "^\\.DS_Store$", "^Desktop\\.ini$", "^\\.git$" },
+        },
+        renderer = {
+            highlight_git = "name",
+        },
         sync_root_with_cwd = true,
         respect_buf_cwd = true,
         update_focused_file = {
