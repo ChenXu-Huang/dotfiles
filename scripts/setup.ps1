@@ -1,6 +1,7 @@
 # Link this repository's configuration into its Windows locations: a junction
-# at %LOCALAPPDATA%\nvim for Neovim and file links for the PowerShell 7 profile
-# in Documents\PowerShell (no Administrator rights needed).
+# at %LOCALAPPDATA%\nvim for Neovim, file links for the PowerShell 7 profile in
+# Documents\PowerShell, and junctions for the skills in %USERPROFILE% (no
+# Administrator rights needed).
 [CmdletBinding()]
 param(
     # Replace an existing target: a foreign link is removed, a real file or
@@ -173,6 +174,16 @@ $Links = @(
         Source   = Join-Path $RootDir '.config/powershell/powershell.config.json'
         Target   = Join-Path $PowerShellDir 'powershell.config.json'
         LinkType = @('HardLink', 'SymbolicLink')
+    }
+    @{
+        Source   = Join-Path $RootDir '.agents/skills'
+        Target   = Join-Path $env:USERPROFILE '.agents/skills'
+        LinkType = @('Junction')
+    }
+    @{
+        Source   = Join-Path $RootDir '.agents/skills'
+        Target   = Join-Path $env:USERPROFILE '.claude/skills'
+        LinkType = @('Junction')
     }
 )
 

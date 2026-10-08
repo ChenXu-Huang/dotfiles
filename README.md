@@ -1,9 +1,10 @@
 # dotfiles
 
 Personal development-environment configuration as code: a
-[Neovim](https://neovim.io/) configuration plus cross-platform setup scripts
-that link it into place, so everything is edited in one repository and tracked
-in Git.
+[Neovim](https://neovim.io/) configuration, a Windows PowerShell 7 profile and
+the skill definitions for the agent CLIs, plus cross-platform setup scripts
+that link them into place, so everything is edited in one repository and
+tracked in Git.
 
 ## Requirements
 
@@ -18,6 +19,8 @@ in Git.
 - Optional: **PowerShell 7** on Windows — `scripts/setup.ps1` links the
   profile in `.config/powershell/` into the per-user configuration directory
   that `pwsh` reads.
+- Optional: an agent CLI that reads skills from `~/.agents/skills` or
+  `~/.claude/skills` — the setup scripts link `.agents/skills` into both.
 
 ## Installation
 
@@ -37,13 +40,15 @@ cd dotfiles
 .\scripts\setup.ps1
 ```
 
-Both point at the repository's `.config/nvim`:
+Each script links the repository's sources into that platform's locations:
 
 | Platform | Link created |
 | --- | --- |
 | macOS / Linux | `${XDG_CONFIG_HOME:-~/.config}/nvim`, a symbolic link |
+| macOS / Linux | `~/.agents/skills` and `~/.claude/skills`, symbolic links |
 | Windows | `%LOCALAPPDATA%\nvim`, a junction (no Administrator rights) |
 | Windows | `Documents\PowerShell`: profile and `powershell.config.json` |
+| Windows | `%USERPROFILE%\.agents\skills` and `.claude\skills`, junctions |
 
 Both scripts also:
 
@@ -51,8 +56,10 @@ Both scripts also:
 - install the nvim-treesitter dependencies with [Homebrew](https://brew.sh) on
   macOS and with [Scoop](https://scoop.sh) on Windows, printing install hints
   when the package manager is unavailable;
+- link `.agents/skills` into both the agent and the Claude Code skills
+  directories, creating a missing target directory;
 - leave an existing target alone: they skip when it already points at this
-  repository and exit with an error otherwise;
+  repository, and report an error instead of touching anything else;
 - on Windows, resolve `Documents\PowerShell` through
   `[Environment]::GetFolderPath('MyDocuments')`, so a Documents folder
   redirected to OneDrive works (Windows PowerShell 5.1 reads
@@ -67,11 +74,13 @@ access.
 ### Uninstall
 
 ```sh
-rm ~/.config/nvim
+rm ~/.config/nvim ~/.agents/skills ~/.claude/skills
 ```
 
 ```powershell
 Remove-Item "$env:LOCALAPPDATA\nvim" -Force
+Remove-Item "$env:USERPROFILE\.agents\skills" -Force
+Remove-Item "$env:USERPROFILE\.claude\skills" -Force
 $docs = [Environment]::GetFolderPath('MyDocuments')
 Remove-Item "$docs\PowerShell\Microsoft.PowerShell_profile.ps1" -Force
 Remove-Item "$docs\PowerShell\powershell.config.json" -Force
@@ -85,6 +94,7 @@ Plugins and the shell-path cache live outside it, in `stdpath("data")` and
 ## Repository Layout
 
 ```
+.agents/skills/       Skill definitions, linked into ~/.agents and ~/.claude
 .config/nvim/         Neovim configuration, linked in by the setup scripts
 .config/powershell/   PowerShell 7 profile, linked into Documents\PowerShell
 scripts/              setup.sh (macOS/Linux) and setup.ps1 (Windows)

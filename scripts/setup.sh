@@ -1,5 +1,6 @@
 #!/bin/sh
-# Link this repository's .config/nvim directory into Neovim's config location.
+# Link this repository's configuration into its locations in $HOME: the Neovim
+# configuration, and the skills for the agent CLIs.
 # Primary target: macOS (Darwin); Linux works identically via XDG paths.
 set -eu
 
@@ -9,11 +10,14 @@ usage() {
     cat <<'EOF'
 Usage: setup.sh [-f|--force] [-h|--help]
 
-Links the repository's .config/nvim directory to ${XDG_CONFIG_HOME:-~/.config}/nvim.
+Links the repository's configuration into place:
+  .config/nvim    -> ${XDG_CONFIG_HOME:-~/.config}/nvim
+  .agents/skills  -> ~/.agents/skills
+  .agents/skills  -> ~/.claude/skills
 
 Options:
   -f, --force   Replace an existing target: a foreign link is removed, a real
-                file or directory is backed up to nvim.bak.<timestamp>.
+                file or directory is backed up to <target>.bak.<timestamp>.
   -h, --help    Show this help and exit.
 
 Without --force the script never touches an existing target: it skips when
@@ -55,6 +59,50 @@ brew_install() {
         hint "Install Homebrew first (https://brew.sh), then: brew install $1"
     fi
     return 1
+}
+
+# link_config <source> <target>: symlink <target> to <source>. Skips when the
+# link is already correct, replaces a foreign link or backs up a real file or
+# directory with --force, and returns non-zero when the target is left alone.
+link_config() {
+    src=$1
+    dst=$2
+
+    if [ ! -d "$src" ]; then
+        error "expected source directory not found at $src"
+        hint "run this script from a full clone of the dotfiles repository."
+        return 1
+    fi
+
+    if [ -L "$dst" ]; then
+        current=$(readlink "$dst")
+        if [ "$current" = "$src" ]; then
+            info "Skipped: $dst already points to $src."
+            return 0
+        fi
+        if [ "$FORCE" -eq 1 ]; then
+            rm -f "$dst"  # removes the link only; also clears broken links
+            info "Removed old link: $dst -> $current"
+        else
+            error "$dst is a link to $current, not to this repository."
+            hint "Re-run with --force to replace it, or remove it yourself."
+            return 1
+        fi
+    elif [ -e "$dst" ]; then
+        if [ "$FORCE" -eq 1 ]; then
+            backup="$dst.bak.$(date +%Y%m%d%H%M%S)"
+            mv "$dst" "$backup"
+            info "Backed up existing config: $backup"
+        else
+            error "$dst already exists."
+            hint "Back it up or remove it yourself, or re-run with --force to back it up automatically."
+            return 1
+        fi
+    fi
+
+    mkdir -p "$(dirname "$dst")"
+    ln -s "$src" "$dst"
+    info "Linked: $dst -> $src"
 }
 
 while [ $# -gt 0 ]; do
@@ -142,51 +190,20 @@ else
     fi
 fi
 
-# --- Resolve paths ---------------------------------------------------------
+# --- Link targets ----------------------------------------------------------
 
 ROOT_DIR=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
-SOURCE="$ROOT_DIR/.config/nvim"
 CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
-TARGET="$CONFIG_HOME/nvim"
 
-if [ ! -d "$SOURCE" ]; then
-    error "expected .config/nvim directory not found at $SOURCE"
+FAILED=0
+
+link_config "$ROOT_DIR/.config/nvim" "$CONFIG_HOME/nvim" || FAILED=1
+link_config "$ROOT_DIR/.agents/skills" "$HOME/.agents/skills" || FAILED=1
+link_config "$ROOT_DIR/.agents/skills" "$HOME/.claude/skills" || FAILED=1
+
+if [ "$FAILED" -eq 1 ]; then
     exit 1
 fi
-
-# --- Handle an existing target ---------------------------------------------
-
-if [ -L "$TARGET" ]; then
-    CURRENT=$(readlink "$TARGET")
-    if [ "$CURRENT" = "$SOURCE" ]; then
-        info "Skipped: $TARGET already points to $SOURCE."
-        exit 0
-    fi
-    if [ "$FORCE" -eq 1 ]; then
-        rm -f "$TARGET"  # removes the link only; also clears broken links
-        info "Removed old link: $TARGET -> $CURRENT"
-    else
-        error "$TARGET is a link to $CURRENT, not to this repository."
-        hint "Re-run with --force to replace it, or remove it yourself."
-        exit 1
-    fi
-elif [ -e "$TARGET" ]; then
-    if [ "$FORCE" -eq 1 ]; then
-        BACKUP="$TARGET.bak.$(date +%Y%m%d%H%M%S)"
-        mv "$TARGET" "$BACKUP"
-        info "Backed up existing config: $BACKUP"
-    else
-        error "$TARGET already exists."
-        hint "Back it up or remove it yourself, or re-run with --force to back it up automatically."
-        exit 1
-    fi
-fi
-
-# --- Create the link --------------------------------------------------------
-
-mkdir -p "$CONFIG_HOME"
-ln -s "$SOURCE" "$TARGET"
-info "Linked: $TARGET -> $SOURCE"
 
 if [ "$MISSING_DEPS" -eq 1 ]; then
     warn "some dependencies are still missing; fix the items above, then run :TSUpdate inside Neovim."

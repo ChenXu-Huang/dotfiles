@@ -67,6 +67,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Microsoft.PowerShell:ExecutionPolicy` to `RemoteSigned` for the current
   user, which only takes effect from that directory (or from `$PSHOME` for all
   users).
+- `.agents/skills/`: the skill definitions for the agent CLIs are tracked in
+  the repository — one directory per skill (`.agents/skills/<name>/SKILL.md`)
+  — and linked into both locations those tools read: `~/.agents/skills` and
+  `~/.claude/skills`, or `%USERPROFILE%\.agents\skills` and
+  `%USERPROFILE%\.claude\skills` on Windows, so one copy serves every CLI.
 
 ### Changed
 
@@ -96,11 +101,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/setup.ps1` links a table of source/target pairs through one
   `New-ConfigLink` helper instead of handling the single Neovim junction
   inline: a missing target directory is created, the link types are tried in
-  order (a junction for the Neovim config, a hard link with a symbolic-link
-  fallback for the PowerShell files), an existing target is still skipped,
-  replaced with `-Force`, or backed up to `<target>.bak.<timestamp>` first, and
-  the script exits non-zero when any link was not created;
+  order (a junction for the Neovim config and the skills, a hard link with a
+  symbolic-link fallback for the PowerShell files), an existing target is still
+  skipped, replaced with `-Force`, or backed up to `<target>.bak.<timestamp>`
+  first, and the script exits non-zero when any link was not created;
   `docs/ARCHITECTURE.md` and `README.md` describe the new layout.
+- `scripts/setup.sh` links every pair through one `link_config` helper instead
+  of handling the single Neovim symlink inline, matching `scripts/setup.ps1`:
+  it creates a missing target directory, skips a correct link, replaces a
+  foreign link or backs up a real file or directory with `--force`, and works
+  through the remaining pairs before exiting non-zero.
 
 ### Fixed
 

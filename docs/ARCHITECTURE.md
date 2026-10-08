@@ -27,9 +27,11 @@ place.
 │           │   ├── lazy.lua    lazy.nvim bootstrap and plugin-spec import
 │           │   └── shell.lua   Login-shell commands and environment import
 │           └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
+├── .agents/                  Skill definitions for the agent CLIs
+│   └── skills/               One directory per skill, linked into ~/.agents and ~/.claude
 ├── scripts/              Setup scripts
-│   ├── setup.ps1         Windows: links .config/nvim and .config/powershell
-│   └── setup.sh          macOS/Linux: symlink ~/.config/nvim -> .config/nvim
+│   ├── setup.ps1         Windows: links .config/nvim, the pwsh profile and the skills
+│   └── setup.sh          macOS/Linux: links .config/nvim and the skills
 ├── docs/                 Project documentation
 │   ├── ARCHITECTURE.md   This file
 │   └── CHANGELOG.md      Release history (Keep a Changelog format)
@@ -135,10 +137,10 @@ layers:
 
 ## Setup Scripts
 
-The setup scripts make the in-repo `.config/nvim/` directory visible at
-Neovim's expected config location (and, on Windows, the in-repo
-`.config/powershell/` profile visible at PowerShell's), so the configuration is
-edited in one place and tracked in Git:
+The setup scripts make the in-repo configuration visible where the tools read
+it — Neovim's config path, PowerShell's per-user configuration directory (on
+Windows) and the skill directories of the agent CLIs — so everything is edited
+in one place and tracked in Git:
 
 - **Windows (PowerShell)** — `scripts/setup.ps1` walks one table of
   source/target pairs through a shared `New-ConfigLink` helper: a *junction*
@@ -150,14 +152,18 @@ edited in one place and tracked in Git:
   which needs Developer Mode. The PowerShell directory is resolved with
   `[Environment]::GetFolderPath('MyDocuments')`, so a Documents folder
   redirected to OneDrive works as well; Windows PowerShell 5.1 reads
-  `Documents\WindowsPowerShell` instead and is deliberately left alone. Missing
-  external dependencies of the main-branch nvim-treesitter (`tree-sitter` CLI,
+  `Documents\WindowsPowerShell` instead and is deliberately left alone. The
+  skills are junctions into `%USERPROFILE%\.agents\skills` and
+  `%USERPROFILE%\.claude\skills`. Missing external dependencies of the
+  main-branch nvim-treesitter (`tree-sitter` CLI,
   `gcc`) are installed automatically with [Scoop](https://scoop.sh) when it is
   available; the script also warns when Neovim itself is missing or older than
   0.11.
-- **macOS / Linux (POSIX sh)** — `scripts/setup.sh` creates a *symbolic link*
-  from `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `.config/nvim/`
-  folder, creating the config home first if needed. macOS is the primary
+- **macOS / Linux (POSIX sh)** — `scripts/setup.sh` calls the same kind of
+  `link_config` helper once per pair: a *symbolic link* from
+  `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `.config/nvim/` folder,
+  and one for each skills location (`~/.agents/skills`, `~/.claude/skills`),
+  creating a missing target directory first. macOS is the primary
   target; it also installs the external dependencies of the main-branch
   nvim-treesitter with Homebrew (the `tree-sitter-cli` formula — `tree-sitter`
   itself ships only the library; the C compiler comes from the Xcode Command
@@ -165,16 +171,36 @@ edited in one place and tracked in Git:
   0.11. On Linux the same checks only print install hints.
 
 Both scripts check the environment before linking and are safe to re-run:
-when the target already points at this repository they skip — the Windows
-script also accepts a file whose content equals the source, which is how a hard
-link is recognized, since it carries no reparse point. When a foreign link,
-real directory, or file occupies the target they warn and exit. Passing
-`-f`/`--force` (`-Force` on Windows) replaces the target instead — a foreign
-link is removed (never its contents), a real file or directory is backed up to
+when the target already points at this repository they skip, and every pair is
+processed even when one of them conflicts, after which the run exits non-zero.
+A foreign link, a real directory or a file at the target is reported and left
+untouched; the Windows script additionally accepts a file whose content equals
+the source (that is how a hard link is recognized, since it carries no reparse
+point), and the POSIX script compares link texts, so a link that reaches the
+repository only through another link counts as foreign. Passing `-f`/`--force`
+(`-Force` on Windows) replaces the target instead — a foreign link is removed
+(never its contents), a real file or directory is backed up to
 `<target>.bak.<timestamp>` first. Because a hard link shares the file with the
 repository, an editor or `git` operation that replaces the file instead of
 rewriting it in place leaves the linked copy behind; re-run
 `scripts/setup.ps1 -Force` to relink it.
+
+## Agent Skills
+
+`.agents/skills/` holds the skill definitions for the agent CLIs, one directory
+per skill (`.agents/skills/<name>/SKILL.md`) as those tools expect them. Every
+skill is authored in this repository and linked into both locations the CLIs
+read, so one edit applies everywhere:
+
+| Location | POSIX | Windows |
+| --- | --- | --- |
+| agent skills directory | `~/.agents/skills` | `%USERPROFILE%\.agents\skills` |
+| Claude Code skills directory | `~/.claude/skills` | `%USERPROFILE%\.claude\skills` |
+
+`scripts/setup.sh` creates symbolic links, `scripts/setup.ps1` junctions; both
+create the parent directory when it does not exist yet. A pre-existing
+`~/.claude/skills` that only points at `~/.agents/skills` is treated as foreign
+and needs one `--force` run to become a direct link.
 
 ## PowerShell Profile
 
