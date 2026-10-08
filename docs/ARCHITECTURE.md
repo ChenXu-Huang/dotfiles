@@ -5,14 +5,15 @@ This document describes the structure and design of this dotfiles repository.
 ## Overview
 
 This repository manages personal development-environment configuration as code.
-The current scope is a [Neovim](https://neovim.io/) configuration plus
-cross-platform setup scripts that link it into place.
+The current scope is a [Neovim](https://neovim.io/) configuration and a Windows
+PowerShell 7 profile, plus cross-platform setup scripts that link them into
+place.
 
 ## Repository Layout
 
 ```
-.
-├── .config/                  Neovim's config home, mirrored from this repository
+├── .config/                  Config home, mirrored from this repository
+│   ├── powershell/           PowerShell 7 profile, linked into Documents\PowerShell
 │   └── nvim/                 Neovim configuration (linked to the Neovim config path)
 │       ├── init.lua          Entry point: dynamic core-module loader
 │       ├── lsp/              One config per LSP server (auto-discovered by vim.lsp)
@@ -27,7 +28,7 @@ cross-platform setup scripts that link it into place.
 │           │   └── shell.lua   Login-shell commands and environment import
 │           └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
 ├── scripts/              Setup scripts
-│   ├── setup.ps1         Windows: junction %LOCALAPPDATA%\nvim -> .config/nvim
+│   ├── setup.ps1         Windows: links .config/nvim and .config/powershell
 │   └── setup.sh          macOS/Linux: symlink ~/.config/nvim -> .config/nvim
 ├── docs/                 Project documentation
 │   ├── ARCHITECTURE.md   This file
@@ -135,15 +136,25 @@ layers:
 ## Setup Scripts
 
 The setup scripts make the in-repo `.config/nvim/` directory visible at
-Neovim's expected config location, so the configuration is edited in one place
-and tracked in Git:
+Neovim's expected config location (and, on Windows, the in-repo
+`.config/powershell/` profile visible at PowerShell's), so the configuration is
+edited in one place and tracked in Git:
 
-- **Windows (PowerShell)** — `scripts/setup.ps1` creates a *junction* from
-  `%LOCALAPPDATA%\nvim` to the repo's `.config/nvim/` folder. Junctions work
-  without Administrator privileges. Missing external dependencies of the
-  main-branch nvim-treesitter (`tree-sitter` CLI, `gcc`) are installed
-  automatically with [Scoop](https://scoop.sh) when it is available; the script
-  also warns when Neovim itself is missing or older than 0.11.
+- **Windows (PowerShell)** — `scripts/setup.ps1` walks one table of
+  source/target pairs through a shared `New-ConfigLink` helper: a *junction*
+  from `%LOCALAPPDATA%\nvim` to the repo's `.config/nvim/` folder, and *hard
+  links* for the PowerShell 7 profile (`Microsoft.PowerShell_profile.ps1` and
+  `powershell.config.json`) in `Documents\PowerShell`. Junctions and hard links
+  need no Administrator privileges; where a hard link is impossible (the
+  repository sits on another volume) the helper falls back to a symbolic link,
+  which needs Developer Mode. The PowerShell directory is resolved with
+  `[Environment]::GetFolderPath('MyDocuments')`, so a Documents folder
+  redirected to OneDrive works as well; Windows PowerShell 5.1 reads
+  `Documents\WindowsPowerShell` instead and is deliberately left alone. Missing
+  external dependencies of the main-branch nvim-treesitter (`tree-sitter` CLI,
+  `gcc`) are installed automatically with [Scoop](https://scoop.sh) when it is
+  available; the script also warns when Neovim itself is missing or older than
+  0.11.
 - **macOS / Linux (POSIX sh)** — `scripts/setup.sh` creates a *symbolic link*
   from `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `.config/nvim/`
   folder, creating the config home first if needed. macOS is the primary
@@ -154,11 +165,34 @@ and tracked in Git:
   0.11. On Linux the same checks only print install hints.
 
 Both scripts check the environment before linking and are safe to re-run:
-when the target already points at this repository they skip; when a foreign
-link, real directory, or file occupies the target they warn and exit. Passing
+when the target already points at this repository they skip — the Windows
+script also accepts a file whose content equals the source, which is how a hard
+link is recognized, since it carries no reparse point. When a foreign link,
+real directory, or file occupies the target they warn and exit. Passing
 `-f`/`--force` (`-Force` on Windows) replaces the target instead — a foreign
-link is removed (never its contents), a real file or directory is backed up
-to `nvim.bak.<timestamp>` first.
+link is removed (never its contents), a real file or directory is backed up to
+`<target>.bak.<timestamp>` first. Because a hard link shares the file with the
+repository, an editor or `git` operation that replaces the file instead of
+rewriting it in place leaves the linked copy behind; re-run
+`scripts/setup.ps1 -Force` to relink it.
+
+## PowerShell Profile
+
+`.config/powershell/` holds the Windows PowerShell 7 configuration, which
+`scripts/setup.ps1` links into `Documents\PowerShell`:
+
+- `Microsoft.PowerShell_profile.ps1` switches the console to UTF-8, hooks
+  `scoop-search`, loads posh-git, oh-my-posh (the built-in `stelbent.minimal`
+  theme) and Terminal-Icons, configures PSReadLine (Emacs mode, predictions
+  from history and plugins in list view) and PSFzf (`Ctrl+f`, `Ctrl+r`), adds
+  the `vim`, `g`, `grep` and `which` shortcuts, and puts the `x64` bin
+  directory of the newest installed Windows SDK on `PATH` — the version folders
+  are sorted as versions, not as strings.
+- `powershell.config.json` sets `Microsoft.PowerShell:ExecutionPolicy` to
+  `RemoteSigned`. PowerShell only reads this key from the user-scope
+  configuration directory (or from `$PSHOME` for all users), so linking the
+  file next to the profile is what makes it apply; inside the repository alone
+  it would have no effect.
 
 ## Conventions
 

@@ -15,11 +15,15 @@ in Git.
 - Optional: a Nerd Font (`JetBrainsMono Nerd Font Mono` is the configured GUI
   font), [Neovide](https://neovide.dev), and `pwsh` — when it is on `PATH`,
   Neovim uses it as `shell` on every platform.
+- Optional: **PowerShell 7** on Windows — `scripts/setup.ps1` links the
+  profile in `.config/powershell/` into the per-user configuration directory
+  that `pwsh` reads.
 
 ## Installation
 
-The setup scripts link `.config/nvim` to Neovim's config location, checking the
-environment first. They are safe to re-run.
+The setup scripts link `.config/nvim` to Neovim's config location — and, on
+Windows, the PowerShell 7 profile to the directory `pwsh` reads it from —
+checking the environment first. They are safe to re-run.
 
 ```sh
 git clone https://github.com/ChenXu-Huang/dotfiles.git
@@ -39,6 +43,7 @@ Both point at the repository's `.config/nvim`:
 | --- | --- |
 | macOS / Linux | `${XDG_CONFIG_HOME:-~/.config}/nvim`, a symbolic link |
 | Windows | `%LOCALAPPDATA%\nvim`, a junction (no Administrator rights) |
+| Windows | `Documents\PowerShell`: profile and `powershell.config.json` |
 
 Both scripts also:
 
@@ -47,12 +52,16 @@ Both scripts also:
   macOS and with [Scoop](https://scoop.sh) on Windows, printing install hints
   when the package manager is unavailable;
 - leave an existing target alone: they skip when it already points at this
-  repository and exit with an error otherwise.
+  repository and exit with an error otherwise;
+- on Windows, resolve `Documents\PowerShell` through
+  `[Environment]::GetFolderPath('MyDocuments')`, so a Documents folder
+  redirected to OneDrive works (Windows PowerShell 5.1 reads
+  `Documents\WindowsPowerShell` and is left alone).
 
 `-f`/`--force` (`-Force` on Windows) replaces the target instead: a foreign
 link is removed and a real file or directory is backed up to
-`nvim.bak.<timestamp>` first. `-h`/`--help` prints the usage. The first Neovim
-start bootstraps lazy.nvim and installs the plugins, which needs network
+`<target>.bak.<timestamp>` first. `-h`/`--help` prints the usage. The first
+Neovim start bootstraps lazy.nvim and installs the plugins, which needs network
 access.
 
 ### Uninstall
@@ -63,18 +72,23 @@ rm ~/.config/nvim
 
 ```powershell
 Remove-Item "$env:LOCALAPPDATA\nvim" -Force
+$docs = [Environment]::GetFolderPath('MyDocuments')
+Remove-Item "$docs\PowerShell\Microsoft.PowerShell_profile.ps1" -Force
+Remove-Item "$docs\PowerShell\powershell.config.json" -Force
 ```
 
-Both commands remove the link or junction only; the repository is untouched.
+They remove the links, junctions and hard links only — the repository keeps
+its files, and `Documents\PowerShell` itself stays in place.
 Plugins and the shell-path cache live outside it, in `stdpath("data")` and
 `stdpath("cache")`, so remove those directories as well for a clean slate.
 
 ## Repository Layout
 
 ```
-.config/nvim/   Neovim configuration, linked into place by the setup scripts
-scripts/        setup.sh (macOS/Linux) and setup.ps1 (Windows)
-docs/           ARCHITECTURE.md and CHANGELOG.md
+.config/nvim/         Neovim configuration, linked in by the setup scripts
+.config/powershell/   PowerShell 7 profile, linked into Documents\PowerShell
+scripts/              setup.sh (macOS/Linux) and setup.ps1 (Windows)
+docs/                 ARCHITECTURE.md and CHANGELOG.md
 ```
 
 Inside `.config/nvim/`:

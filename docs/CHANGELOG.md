@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hints.
 - `-f`/`--force` (`-Force` on Windows) option for both setup scripts: a
   foreign link at the target is removed, a real file or directory is backed
-  up to `nvim.bak.<timestamp>` before linking.
+  up to `<target>.bak.<timestamp>` before linking.
 - `scripts/setup.sh` strict mode (`set -eu`), platform detection, `--help`,
   and colored output on interactive terminals.
 - `desc` descriptions on all custom key mappings (core, bufferline, lspsaga,
@@ -56,6 +56,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `README.md`: the user-facing entry point — requirements, installation with
   both setup scripts (flags, what they link, how to undo it), repository
   layout, the key mappings and links into `docs/`.
+- `.config/powershell/`: the Windows PowerShell 7 configuration, linked into
+  the per-user `Documents\PowerShell` directory by `scripts/setup.ps1`.
+  `Microsoft.PowerShell_profile.ps1` switches the console to UTF-8, hooks
+  `scoop-search`, loads posh-git, oh-my-posh (`stelbent.minimal`) and
+  Terminal-Icons, configures PSReadLine (Emacs mode, list-view predictions from
+  history and plugins) and PSFzf (`Ctrl+f`, `Ctrl+r`), adds `vim`, `g`, `grep`
+  and `which` shortcuts, and puts the `x64` bin directory of the newest
+  installed Windows SDK on `PATH`; `powershell.config.json` sets
+  `Microsoft.PowerShell:ExecutionPolicy` to `RemoteSigned` for the current
+  user, which only takes effect from that directory (or from `$PSHOME` for all
+  users).
 
 ### Changed
 
@@ -82,6 +93,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to match.
 - `.config/nvim/lua/core/basic.lua`: the Neovide scale factor is 0.9 instead
   of 0.85.
+- `scripts/setup.ps1` links a table of source/target pairs through one
+  `New-ConfigLink` helper instead of handling the single Neovim junction
+  inline: a missing target directory is created, the link types are tried in
+  order (a junction for the Neovim config, a hard link with a symbolic-link
+  fallback for the PowerShell files), an existing target is still skipped,
+  replaced with `-Force`, or backed up to `<target>.bak.<timestamp>` first, and
+  the script exits non-zero when any link was not created;
+  `docs/ARCHITECTURE.md` and `README.md` describe the new layout.
 
 ### Fixed
 
@@ -105,6 +124,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `close_on_edit`, which toggleterm does not have — so a failing `dsh-tui`
   leaves its window and error text on screen instead of vanishing instantly (a
   clean exit still closes the window).
+- `.config/powershell/Microsoft.PowerShell_profile.ps1`: the Windows SDK `x64`
+  bin directory was picked by sorting the version folders as strings, where
+  `10.0.9999.0` outranks `10.0.10240.0`; the folders are now sorted as
+  `[version]` values, so the newest installed SDK wins.
 
 ## [0.1.0] - 2026-10-03
 
