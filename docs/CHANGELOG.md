@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-09
+
 ### Added
 
 - `scripts/setup.sh` (macOS-first) and `scripts/setup.ps1` environment
@@ -224,5 +226,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not adjust them automatically), so toggleterm and external commands run
   under PowerShell 7 there.
 
-[Unreleased]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ChenXu-Huang/dotfiles/releases/tag/v0.1.0
