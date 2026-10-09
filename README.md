@@ -24,9 +24,10 @@ tracked in Git.
 
 ## Installation
 
-The setup scripts link `.config/nvim` to Neovim's config location — and, on
-Windows, the PowerShell 7 profile to the directory `pwsh` reads it from —
-checking the environment first. They are safe to re-run.
+The setup scripts link `.config/nvim` to Neovim's config location, the zsh
+startup files to `~/.zshrc` and `~/.zprofile` (macOS) and, on Windows, the
+PowerShell 7 profile to the directory `pwsh` reads it from, checking the
+environment first. They are safe to re-run.
 
 ```sh
 git clone https://github.com/ChenXu-Huang/dotfiles.git
@@ -45,6 +46,7 @@ Each script links the repository's sources into that platform's locations:
 | Platform | Link created |
 | --- | --- |
 | macOS / Linux | `${XDG_CONFIG_HOME:-~/.config}/nvim`, a symbolic link |
+| macOS | `${ZDOTDIR:-~}/.zshrc` and `${ZDOTDIR:-~}/.zprofile`, symbolic links |
 | macOS / Linux | `~/.agents/skills` and `~/.claude/skills`, symbolic links |
 | Windows | `%LOCALAPPDATA%\nvim`, a junction (no Administrator rights) |
 | Windows | `Documents\PowerShell`: profile and `powershell.config.json` |
@@ -71,10 +73,31 @@ link is removed and a real file or directory is backed up to
 Neovim start bootstraps lazy.nvim and installs the plugins, which needs network
 access.
 
+### Shell Configuration
+
+`scripts/setup.sh` links the two zsh startup files on macOS — zsh reads
+`.zshenv`, `.zprofile`, `.zshrc` and `.zlogin` from `${ZDOTDIR:-$HOME}` and
+never looks in `.config/`:
+
+| Source | Target |
+| --- | --- |
+| `.config/zsh/.zshrc` | `${ZDOTDIR:-$HOME}/.zshrc` |
+| `.config/zsh/.zprofile` | `${ZDOTDIR:-$HOME}/.zprofile` |
+
+An existing real file at the target is reported and left alone; `--force` backs
+it up to `<target>.bak.<timestamp>` first. Afterwards anything that appends to
+`~/.zshrc` writes into the repository file.
+
+`.zprofile` (login shells) puts Homebrew on `PATH` and defines
+`HOMEBREW_PREFIX`; `.zshrc` (every interactive shell) loads oh-my-zsh, nvm,
+rustup and the aliases, falling back to `/opt/homebrew` when it was started
+without reading `.zprofile`.
+
 ### Uninstall
 
 ```sh
 rm ~/.config/nvim ~/.agents/skills ~/.claude/skills
+rm ~/.zshrc ~/.zprofile
 ```
 
 ```powershell
@@ -97,6 +120,7 @@ Plugins and the shell-path cache live outside it, in `stdpath("data")` and
 .agents/skills/       Skill definitions, linked into ~/.agents and ~/.claude
 .config/nvim/         Neovim configuration, linked in by the setup scripts
 .config/powershell/   PowerShell 7 profile, linked into Documents\PowerShell
+.config/zsh/          zsh startup files, linked into $HOME on macOS
 scripts/              setup.sh (macOS/Linux) and setup.ps1 (Windows)
 docs/                 ARCHITECTURE.md and CHANGELOG.md
 ```

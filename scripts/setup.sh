@@ -1,6 +1,7 @@
 #!/bin/sh
 # Link this repository's configuration into its locations in $HOME: the Neovim
-# configuration, and the skills for the agent CLIs.
+# configuration, the skills for the agent CLIs, and the zsh startup files on
+# macOS.
 # Primary target: macOS (Darwin); Linux works identically via XDG paths.
 set -eu
 
@@ -14,6 +15,7 @@ Links the repository's configuration into place:
   .config/nvim    -> ${XDG_CONFIG_HOME:-~/.config}/nvim
   .agents/skills  -> ~/.agents/skills
   .agents/skills  -> ~/.claude/skills
+  .config/zsh     -> ${ZDOTDIR:-~}/.zshrc and .zprofile (macOS)
 
 Options:
   -f, --force   Replace an existing target: a foreign link is removed, a real
@@ -68,8 +70,8 @@ link_config() {
     src=$1
     dst=$2
 
-    if [ ! -d "$src" ]; then
-        error "expected source directory not found at $src"
+    if [ ! -e "$src" ]; then
+        error "expected source not found at $src"
         hint "run this script from a full clone of the dotfiles repository."
         return 1
     fi
@@ -194,12 +196,18 @@ fi
 
 ROOT_DIR=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
 CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
+ZDOT_DIR=${ZDOTDIR:-"$HOME"}
 
 FAILED=0
 
 link_config "$ROOT_DIR/.config/nvim" "$CONFIG_HOME/nvim" || FAILED=1
 link_config "$ROOT_DIR/.agents/skills" "$HOME/.agents/skills" || FAILED=1
 link_config "$ROOT_DIR/.agents/skills" "$HOME/.claude/skills" || FAILED=1
+
+if [ "$PLATFORM" = macOS ]; then
+    link_config "$ROOT_DIR/.config/zsh/.zshrc" "$ZDOT_DIR/.zshrc" || FAILED=1
+    link_config "$ROOT_DIR/.config/zsh/.zprofile" "$ZDOT_DIR/.zprofile" || FAILED=1
+fi
 
 if [ "$FAILED" -eq 1 ]; then
     exit 1

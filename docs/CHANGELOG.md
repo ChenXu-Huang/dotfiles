@@ -72,6 +72,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   — and linked into both locations those tools read: `~/.agents/skills` and
   `~/.claude/skills`, or `%USERPROFILE%\.agents\skills` and
   `%USERPROFILE%\.claude\skills` on Windows, so one copy serves every CLI.
+- `.config/zsh/`: the macOS zsh startup files — `.zprofile` evaluates Homebrew's
+  `brew shellenv`, `.zshrc` loads oh-my-zsh, nvm (with its completion file),
+  rustup, the `EDITOR`/`BUNDLER_EDITOR` variables, the `vim`/`buu` aliases and
+  the `y` yazi wrapper. `scripts/setup.sh` links both into `${ZDOTDIR:-$HOME}`
+  on macOS; an existing real file there is reported and left alone unless
+  `--force` backs it up first (the `link_config` helper now accepts files, not
+  only directories). `.zshrc` resolves the Homebrew prefix as
+  `_brew_prefix="${HOMEBREW_PREFIX:-/opt/homebrew}"` — lower case, like a
+  shell-local helper rather than an environment variable — and unsets it after
+  the rustup line, so it does not linger in the session, while nvm and rustup
+  still load in a shell that never read `.zprofile` (a non-login interactive
+  shell), where every `[ -s … ]` guard would otherwise fail silently.
 
 ### Changed
 

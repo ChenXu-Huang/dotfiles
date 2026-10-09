@@ -5,15 +5,18 @@ This document describes the structure and design of this dotfiles repository.
 ## Overview
 
 This repository manages personal development-environment configuration as code.
-The current scope is a [Neovim](https://neovim.io/) configuration and a Windows
-PowerShell 7 profile, plus cross-platform setup scripts that link them into
-place.
+The current scope is a [Neovim](https://neovim.io/) configuration, a Windows
+PowerShell 7 profile and the macOS zsh startup files, plus cross-platform setup
+scripts that link them into place.
 
 ## Repository Layout
 
 ```
 ├── .config/                  Config home, mirrored from this repository
 │   ├── powershell/           PowerShell 7 profile, linked into Documents\PowerShell
+│   ├── zsh/                  zsh startup files (linked into $HOME on macOS)
+│   │   ├── .zprofile           Homebrew environment, read by login shells
+│   │   └── .zshrc              oh-my-zsh, nvm, rustup, aliases and functions
 │   └── nvim/                 Neovim configuration (linked to the Neovim config path)
 │       ├── init.lua          Entry point: dynamic core-module loader
 │       ├── lsp/              One config per LSP server (auto-discovered by vim.lsp)
@@ -31,7 +34,7 @@ place.
 │   └── skills/               One directory per skill, linked into ~/.agents and ~/.claude
 ├── scripts/              Setup scripts
 │   ├── setup.ps1         Windows: links .config/nvim, the pwsh profile and the skills
-│   └── setup.sh          macOS/Linux: links .config/nvim and the skills
+│   └── setup.sh          macOS/Linux: links .config/nvim, the skills and the zsh files
 ├── docs/                 Project documentation
 │   ├── ARCHITECTURE.md   This file
 │   └── CHANGELOG.md      Release history (Keep a Changelog format)
@@ -139,8 +142,8 @@ layers:
 
 The setup scripts make the in-repo configuration visible where the tools read
 it — Neovim's config path, PowerShell's per-user configuration directory (on
-Windows) and the skill directories of the agent CLIs — so everything is edited
-in one place and tracked in Git:
+Windows), the skill directories of the agent CLIs and, on macOS, the zsh
+startup files — so everything is edited in one place and tracked in Git:
 
 - **Windows (PowerShell)** — `scripts/setup.ps1` walks one table of
   source/target pairs through a shared `New-ConfigLink` helper: a *junction*
@@ -162,9 +165,12 @@ in one place and tracked in Git:
 - **macOS / Linux (POSIX sh)** — `scripts/setup.sh` calls the same kind of
   `link_config` helper once per pair: a *symbolic link* from
   `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `.config/nvim/` folder,
-  and one for each skills location (`~/.agents/skills`, `~/.claude/skills`),
-  creating a missing target directory first. macOS is the primary
-  target; it also installs the external dependencies of the main-branch
+  one for each skills location (`~/.agents/skills`, `~/.claude/skills`),
+  creating a missing target directory first, and — on macOS only — one for each
+  zsh startup file (`.config/zsh/.zshrc` and `.zprofile`, linked into
+  `${ZDOTDIR:-$HOME}`; see [Zsh Configuration](#zsh-configuration)). macOS is
+  the primary target; it also installs the external dependencies of the
+  main-branch
   nvim-treesitter with Homebrew (the `tree-sitter-cli` formula — `tree-sitter`
   itself ships only the library; the C compiler comes from the Xcode Command
   Line Tools) and warns when Neovim itself is missing or older than
@@ -219,6 +225,48 @@ and needs one `--force` run to become a direct link.
   configuration directory (or from `$PSHOME` for all users), so linking the
   file next to the profile is what makes it apply; inside the repository alone
   it would have no effect.
+
+## Zsh Configuration
+
+`.config/zsh/` holds the macOS zsh startup files. zsh reads `.zshenv`,
+`.zprofile`, `.zshrc` and `.zlogin` from `${ZDOTDIR:-$HOME}` and never looks in
+`.config/`, so `scripts/setup.sh` links both files where zsh expects them:
+
+| Source | Target |
+| --- | --- |
+| `.config/zsh/.zshrc` | `${ZDOTDIR:-$HOME}/.zshrc` |
+| `.config/zsh/.zprofile` | `${ZDOTDIR:-$HOME}/.zprofile` |
+
+An existing real file at the target is reported and left alone without
+`--force`, which backs it up to `<target>.bak.<timestamp>` first; afterwards
+every append to `~/.zshrc` writes into the repository.
+
+The split follows when zsh sources each file:
+
+- `.zprofile` is read by *login* shells only, which is where Homebrew's
+  `brew shellenv` belongs: it exports `HOMEBREW_PREFIX`, fixes `MANPATH` and
+  `INFOPATH`, adds Homebrew's `site-functions` to `fpath`, and puts
+  `/opt/homebrew/bin` and `/opt/homebrew/sbin` in front of the rest of `PATH`.
+- `.zshrc` is read by every *interactive* shell. It starts oh-my-zsh
+  (`ZSH_THEME="robbyrussell"`, `plugins=(git)`), sets `LANG`/`LC_ALL` and
+  `EDITOR`/`BUNDLER_EDITOR`, loads nvm and its bash-completion file (which
+  detects zsh and routes through `bashcompinit`), prepends the rustup and
+  `~/.cargo/bin` directories to `PATH`, and defines the `vim` and `buu` aliases
+  plus the `y` yazi wrapper that changes directory when yazi quits.
+- A non-login interactive shell (a nested `zsh -i`, some IDE terminals) never
+  reads `.zprofile`, so `.zshrc` does not depend on it:
+  `_brew_prefix="${HOMEBREW_PREFIX:-/opt/homebrew}"` feeds the nvm and rustup
+  lines, and `unset _brew_prefix` follows the last line that uses it, so the
+  helper does not stay in the session. The lower-case name marks it as a
+  shell-local variable rather than an environment variable. Every load is
+  guarded by `[ -s … ]`, so an empty prefix would otherwise skip nvm and rustup
+  without a word. The literal `/opt/homebrew` fallback is deliberate: the
+  repository targets one Apple-silicon machine, so no probe for Intel or
+  Linuxbrew prefixes is included.
+
+`core/shell.lua` fetches the environment with `$SHELL -lic`, so a Neovim started
+from Finder/Dock sees what an interactive login shell produces, nvm's `node`
+included.
 
 ## Conventions
 
