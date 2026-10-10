@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Stage, generate Conventional Commits message, and commit changes; release mode (triggered by /commit vX.Y.Z) syncs the changelog/README and bumps the version
+description: Stage, generate Conventional Commits message, and commit changes; release mode (triggered by /commit v{version}) syncs the changelog/README and bumps the version
 ---
 
 # Commit Changes
@@ -10,9 +10,9 @@ Use this skill when the user asks to commit changes, stage and commit, create a 
 Two modes:
 
 - **Commit mode (Steps 1–7, the default)** — stage, update `docs/CHANGELOG.md`/`README.md` only when the staged diff requires it, confirm the message with the user, and make one commit. Nearly every invocation stops here.
-- **Release mode (Step 8, opt-in)** — triggered by `/commit vX.Y.Z`, where the user supplies the version: promote the accumulated `Unreleased` entries to that version, bump `pyproject.toml`, and commit the release.
+- **Release mode (Step 8, opt-in)** — triggered by `/commit v{version}`, where the user supplies the version: promote the accumulated `Unreleased` entries to that version, bump `pyproject.toml`, commit the release, and tag it.
 
-If the message is `/commit vX.Y.Z`, run the **whole** workflow — Steps 1–7 as a normal commit, then Step 8 as the release commit, so the invocation yields two commits: the work itself, then `chore(release): prepare vX.Y.Z`. A bare `/commit` (no version) is commit mode and stops after Step 7. Anything else ("commit this", "update the docs") is commit mode as well.
+If the message is `/commit v{version}`, run the **whole** workflow — Steps 1–7 as a normal commit, then Step 8 as the release commit, so the invocation yields two commits and a tag: the work itself, then `chore(release): prepare v{version}` tagged `v{version}`. A bare `/commit` (no version) is commit mode and stops after Step 7. Anything else ("commit this", "update the docs") is commit mode as well.
 
 ## Workflow
 
@@ -149,7 +149,7 @@ git diff --cached --stat
 
 - Approved → continue to Step 7.
 - Changes requested (message, scope, file selection) → apply them, present the revised message, and ask again.
-- In release mode, confirm both planned messages at once (the work commit and `chore(release): prepare vX.Y.Z`).
+- In release mode, confirm both planned messages and the tag at once (the work commit, then `chore(release): prepare v{version}` tagged `v{version}`).
 
 Never commit on assumption, and never reuse an approval given for an earlier message after the message has changed.
 
@@ -174,13 +174,13 @@ git commit -m "$COMMIT_MSG"
 
 Co-authored-by trailer is added automatically by the tool; do not include it in the message.
 
-### Step 8: Release Mode — `/commit vX.Y.Z`
+### Step 8: Release Mode — `/commit v{version}`
 
-**Trigger:** the user writes `/commit vX.Y.Z` (for example `/commit v0.3.0`), optionally with extra instructions. The version in the command is authoritative — it is the version to prepare, not a suggestion to re-derive.
+**Trigger:** the user writes `/commit v{version}` (for example `/commit v0.3.0`), optionally with extra instructions. The version in the command is authoritative — it is the version to prepare, not a suggestion to re-derive.
 
-Steps 1–7 still run first and land as their own normal commit; Step 8 then adds the release commit on top. So one `/commit vX.Y.Z` invocation produces two commits: the work (with any `Unreleased` entries it warranted), then `chore(release): prepare vX.Y.Z`. If Steps 1–7 find nothing to commit, say so and go straight to the release commit. Keep release mode opt-in: without the version-carrying command, stop at Step 7 and never bump a version, tag, or push on your own. The same last-minute `git add .` rule applies before this commit too — release edits and the version bump must be staged.
+Steps 1–7 still run first and land as their own normal commit; Step 8 then adds the release commit and the version tag on top. So one `/commit v{version}` invocation produces two commits and a tag: the work (with any `Unreleased` entries it warranted), then `chore(release): prepare v{version}` tagged `v{version}`. If Steps 1–7 find nothing to commit, say so and go straight to the release commit. Keep release mode opt-in: without the version-carrying command, stop at Step 7 and never bump a version, tag, or push on your own. The same last-minute `git add .` rule applies before this commit too — release edits and the version bump must be staged.
 
-Release mode works from **commit history since the last tag**, not just from the staged diff. Points 4–6 additionally check whether the documentation matches what the history actually changed; points 1–3 and 7 are what distinguishes it from a normal commit.
+Release mode works from **commit history since the last tag**, not just from the staged diff. Points 4–6 additionally check whether the documentation matches what the history actually changed; points 1–3 and 7–8 are what distinguishes it from a normal commit.
 
 1. **Find the last tag and the range.**
 
@@ -203,19 +203,19 @@ Release mode works from **commit history since the last tag**, not just from the
 
    If the requested version contradicts the range (a patch bump over new features, a major bump with no breaking change), flag the mismatch and ask before proceeding — do not silently "correct" it. If it matches, continue without discussion.
 
-4. **Promote the changelog.** Every `Unreleased` entry counts, including any added moments earlier in Step 3 of this same invocation — a fresh entry from this run is part of the release, not something to drop. Rename the top `Unreleased` heading to `## [X.Y.Z] — YYYY-MM-DD` (today's date), start a fresh empty `## [Unreleased]` above it, and append the link reference at the bottom in the order the file already uses:
+4. **Promote the changelog.** Every `Unreleased` entry counts, including any added moments earlier in Step 3 of this same invocation — a fresh entry from this run is part of the release, not something to drop. Rename the top `Unreleased` heading to `## [{version}] — YYYY-MM-DD` (today's date), start a fresh empty `## [Unreleased]` above it, and append the link reference at the bottom in the order the file already uses:
 
    ```markdown
-   [X.Y.Z]: https://<host>/<owner>/<repo>/compare/v<prev>...v<X.Y.Z>
+   [{version}]: https://<host>/<owner>/<repo>/compare/v<prev>...v{version}
    ```
 
    Groups (`Added`/`Changed`/`Fixed`/`Removed`/`Security`) keep the entries they already have — move them, never rewrite or drop them. Add entries for user-visible changes the history shows but `Unreleased` does not — and only those. If the `Unreleased` section is missing or empty, there is nothing to release: tell the user instead of inventing a version.
 
-5. **Bump `project.version`** in `pyproject.toml` to the requested `X.Y.Z`, and update `project.description` if the project scope changed.
+5. **Bump `project.version`** in `pyproject.toml` to `{version}`, and update `project.description` if the project scope changed.
 
 6. **README / AGENTS**: update commands, flags, configuration tables, project-structure trees, and feature lists that the range made stale. Prefer targeted edits over rewriting whole files, and never remove documentation unrelated to these commits.
 
-7. **Stage again, confirm, then commit the release** — `git add .`, get the user's approval for the release message per the Step 6 gate (unless it was already confirmed there), then `git commit -m "chore(release): prepare vX.Y.Z"` so the changelog promotion, version bump, and doc sync all land in it — then show the summary:
+7. **Stage again, confirm, then commit the release** — `git add .`, get the user's approval for the release message and tag per the Step 6 gate (unless it was already confirmed there), then `git commit -m "chore(release): prepare v{version}"` so the changelog promotion, version bump, and doc sync all land in it — then show the summary:
 
    ```
    ## Documentation Updated
@@ -227,10 +227,20 @@ Release mode works from **commit history since the last tag**, not just from the
    - README.md — added the new CLI flag
    - pyproject.toml — bumped version to 1.3.0
 
+   **Tag:** v1.3.0 (lightweight, on the release commit)
+
    **Commits included (since v1.2.0):**
    - feat(cli): add export command
    - fix(db): handle connection timeout
    ```
+
+8. **Tag the release** — right after the release commit lands, tag it, matching the tag style the repository already uses (`git for-each-ref refs/tags --format '%(objecttype)'` prints `tag` for annotated tags and `commit` for lightweight ones; this repo uses lightweight):
+
+   ```bash
+   git tag "v{version}"
+   ```
+
+   The changelog compare links point at `v{version}`, so they stay dead until the tag exists — tagging is part of the release, not an optional extra. Pushing the tag (`git push --follow-tags`) or creating a GitHub release still needs an explicit request.
 
 ## Do NOT
 
@@ -239,8 +249,8 @@ Release mode works from **commit history since the last tag**, not just from the
 - Edit `docs/CHANGELOG.md` or `README.md` when the staged diff has no user-visible change
 - Open a new version section in the changelog, or duplicate an entry already under `Unreleased`
 - Create `docs/CHANGELOG.md` or `README.md` that does not exist yet, just to fill it in
-- Enter release mode, bump a version, tag, push, or create a GitHub release unless the user asked for it
-- Swap out the version the user typed in `/commit vX.Y.Z` for one you derived yourself — flag a mismatch and ask instead
+- Enter release mode, bump a version, or tag unless the user asked for it — pushing the tag or creating a GitHub release always needs its own explicit request
+- Swap out the version the user typed in `/commit v{version}` for one you derived yourself — flag a mismatch and ask instead
 - Remove or rewrite existing documentation not related to the new commits
 - Wrap any commit-message paragraph or bullet point across multiple lines (HARD RULE — one line each, no length exception)
 - Force-push or amend without explicit instruction

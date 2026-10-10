@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `.agents/skills/commit`: release mode (`/commit v{version}`) now tags the
+  release commit `v{version}` itself (lightweight, matching the existing
+  tags) instead of leaving tagging to a manual follow-up, so the changelog
+  compare links work as soon as the release lands.
+
 ## [0.3.0] - 2026-10-11
 
 ### Changed
