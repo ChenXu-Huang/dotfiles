@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `NOTE`, `TODO`, `FIXME` and other tags inside comments are highlighted via
+  the built-in nvim-treesitter mechanism: the `comment` parser is added to the
+  installed parser list and injected into the comments of every language whose
+  upstream queries ship that rule, so tags map onto the `@comment.todo`,
+  `@comment.note`, `@comment.warning` and `@comment.error` capture groups the
+  colorscheme already styles — no extra plugin and no custom highlight query.
+
 ## [0.2.0] - 2026-10-09
 
 ### Added

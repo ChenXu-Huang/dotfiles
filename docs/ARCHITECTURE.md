@@ -133,7 +133,13 @@ layers:
   MSVC may be the default).
 - Parsers are installed for: lua, vim, vimdoc, query, python, requirements,
   powershell, bash, markdown(+inline), json, yaml, toml, gitcommit, gitignore,
-  diff, regex.
+  diff, regex, comment.
+- The `comment` parser (upstream `tree-sitter-comment`) is injected into the
+  comments of every language whose `injections.scm` ships that rule, so tags
+  such as `TODO`, `NOTE`, `FIXME`, `HACK`, `WARNING` and `XXX` are highlighted
+  through the built-in `@comment.todo` / `@comment.note` / `@comment.warning` /
+  `@comment.error` capture groups instead of a separate plugin or a
+  `#match?`-based highlight query in this repository.
 - A `FileType` autocommand enables Treesitter highlighting per buffer and
   switches folding to the Treesitter expression; `foldlevel` starts at 99 so
   files open unfolded.

@@ -25,6 +25,7 @@ return {
             "gitignore",
             "diff",
             "regex",
+            "comment",
         })
 
         vim.api.nvim_create_autocmd("FileType", {
