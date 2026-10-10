@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `@comment.note`, `@comment.warning` and `@comment.error` capture groups the
   colorscheme already styles — no extra plugin and no custom highlight query.
 
+### Fixed
+
+- `.config/nvim/lua/plugins/lspsaga.lua`: the `<leader>ld` mapping called
+  `:Lspsaga definition`, a command the plugin no longer provides, so the key
+  errored out; it now calls `:Lspsaga goto_definition`.
+
 ## [0.2.0] - 2026-10-09
 
 ### Added
