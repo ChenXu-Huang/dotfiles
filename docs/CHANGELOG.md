@@ -7,8 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `.config/nvim/lua/core/basic.lua`: `pwsh` is set as `shell` on Windows only
+  (previously on every OS where it was executable), with expanded Windows
+  shell integration flags (UTF-8 output, `-NoProfile`, `shellredir` and
+  `shellpipe`).
+- `.config/nvim/lua/core/shell.lua`: the `PATH` cache is now validated before
+  use — a cached `PATH` is applied only while the cache file is newer than
+  the shell startup files (`~/.zshenv`, `~/.zprofile`, `~/.zshrc`) and nvm's
+  default-version alias, so a stale cache (edited `.zshrc`, a switched nvm
+  default) is refetched instead of silently imported.
+
+### Removed
+
+- `.config/nvim/lua/core/shell.lua`: `shell.cmd()`, its `requires` probing and
+  the write-only `status` field. `sync_env()` already makes programs
+  resolvable before any plugin runs, so toggleterm now launches `dsh-tui`
+  with a plain command string and nothing consumed the status.
+
 ### Added
 
+- `<leader>uw` toggles line wrap for the current window.
 - `NOTE`, `TODO`, `FIXME` and other tags inside comments are highlighted via
   the built-in nvim-treesitter mechanism: the `comment` parser is added to the
   installed parser list and injected into the comments of every language whose

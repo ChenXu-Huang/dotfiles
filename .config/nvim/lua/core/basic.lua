@@ -24,13 +24,13 @@ vim.opt.winborder = "rounded"
 vim.opt.title = true
 vim.opt.titlestring = "%{fnamemodify(getcwd(), ':~')} - nvim"
 
-if vim.fn.executable("pwsh") == 1 then
+if vim.fn.has("win32") == 1 then
     vim.opt.shell = "pwsh"
-    if vim.fn.has("win32") == 1 then
-        vim.opt.shellcmdflag = "-NoLogo -ExecutionPolicy RemoteSigned -Command"
-        vim.opt.shellquote = ""
-        vim.opt.shellxquote = ""
-    end
+    vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+    vim.opt.shellredir = "-RedirectStandardOutput %s -NoNewWindow -Wait"
+    vim.opt.shellpip = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
+    vim.opt.shellquote = ""
+    vim.opt.shellxquote = ""
 end
 
 if vim.g.neovide then

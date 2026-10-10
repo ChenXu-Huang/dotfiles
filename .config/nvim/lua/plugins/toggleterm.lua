@@ -1,7 +1,5 @@
 local dsh_term
 
-local shell = require("core.shell")
-
 return {
     "akinsho/toggleterm.nvim",
     version = "*",
@@ -39,7 +37,7 @@ return {
             if not dsh_term then
                 local Terminal = require("toggleterm.terminal").Terminal
                 dsh_term = Terminal:new({
-                    cmd = shell.cmd("dsh-tui", { args = "--resume", requires = "node" }),
+                    cmd = "dsh-tui --resume",
                     hidden = true,
                     direction = "vertical",
                     count = 99,

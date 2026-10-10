@@ -1,7 +1,5 @@
 local M = {}
 
-M.status = "idle"
-
 local synced = false
 
 local default_path = "/usr/bin:/bin:/usr/sbin:/sbin"
@@ -33,11 +31,7 @@ local session_vars = {
     LINES = true,
 }
 
-local function resolvable(name)
-    return vim.fn.exepath(name) ~= ""
-end
-
-function M.login_shell()
+local function login_shell()
     local candidates = { "/bin/zsh", "/bin/bash", "/bin/sh" }
     if vim.env.SHELL then table.insert(candidates, 1, vim.env.SHELL) end
     for _, shell in ipairs(candidates) do
@@ -47,24 +41,6 @@ end
 
 local function login_flags(shell)
     return (shell:match("zsh$") or shell:match("bash$")) and "-lic" or "-ic"
-end
-
-function M.cmd(program, opts)
-    opts = opts or {}
-    local argv = program .. (opts.args and (" " .. opts.args) or "")
-
-    local requires = opts.requires
-    if type(requires) == "string" then requires = { requires } end
-
-    local ok = resolvable(program)
-    for _, name in ipairs(requires or {}) do
-        ok = ok and resolvable(name)
-    end
-    if ok or vim.fn.has("win32") == 1 then return argv end
-
-    local shell = M.login_shell()
-    if not shell then return argv end
-    return vim.fn.shellescape(shell) .. " " .. login_flags(shell) .. " 'exec " .. argv .. "'"
 end
 
 local function split_path(path)
@@ -104,6 +80,14 @@ local function parse_env(text)
     return env
 end
 
+local home = vim.env.HOME or ""
+
+local rc_files = {
+    home .. "/.zshenv",
+    home .. "/.zprofile",
+    home .. "/.zshrc",
+}
+
 local function cache_file()
     return vim.fn.stdpath("cache") .. "/shell-path"
 end
@@ -111,14 +95,17 @@ end
 local function read_cached_path()
     local file = cache_file()
     if vim.fn.filereadable(file) == 0 then return end
+    local mtime = vim.fn.getftime(file)
+    for _, rc in ipairs(rc_files) do
+        if vim.fn.getftime(rc) > mtime then return end
+    end
     local path = vim.fn.readfile(file)[1]
     if path and path ~= "" then return path end
 end
 
 local function write_cached_path(path)
-    local dir = vim.fn.stdpath("cache")
-    pcall(vim.fn.mkdir, dir, "p")
-    pcall(vim.fn.writefile, { path }, dir .. "/shell-path")
+    pcall(vim.fn.mkdir, vim.fn.stdpath("cache"), "p")
+    pcall(vim.fn.writefile, { path }, cache_file())
 end
 
 local function shell_cmd(shell)
@@ -199,13 +186,12 @@ end
 function M.sync_env(opts)
     opts = opts or {}
     if (synced and not opts.force) or vim.fn.has("win32") == 1 then
-        M.status = "skipped"
-    else
-        synced = true
-        local shell = M.login_shell()
-        M.status = shell and sync(shell, opts) or "failed"
+        return "skipped"
     end
-    return M.status
+    synced = true
+    local shell = login_shell()
+    if not shell then return "failed" end
+    return sync(shell, opts)
 end
 
 return M

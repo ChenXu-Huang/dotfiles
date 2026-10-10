@@ -14,8 +14,8 @@ tracked in Git.
 - **nvim-treesitter dependencies** — the `tree-sitter` CLI and a C compiler
   (`cc`, `gcc` or `clang`) to build parsers.
 - Optional: a Nerd Font (`JetBrainsMono Nerd Font Mono` is the configured GUI
-  font), [Neovide](https://neovide.dev), and `pwsh` — when it is on `PATH`,
-  Neovim uses it as `shell` on every platform.
+  font), [Neovide](https://neovide.dev), and `pwsh` — on Windows Neovim uses
+  it as `shell`.
 - Optional: **PowerShell 7** on Windows — `scripts/setup.ps1` links the
   profile in `.config/powershell/` into the per-user configuration directory
   that `pwsh` reads.
@@ -150,6 +150,7 @@ that show up in keymap listings such as `:map`.
 | Mapping | Action |
 | --- | --- |
 | `<leader>uf` | Toggle the file tree |
+| `<leader>uw` | Toggle line wrap |
 | `<leader>tt` | Toggle the terminal (vertical by default) |
 | `<leader>tf` | Float terminal |
 | `<leader>tv` | Vertical terminal |

@@ -28,7 +28,7 @@ scripts that link them into place.
 │           │   ├── basic.lua   Options (line numbers, indentation, search, UI...)
 │           │   ├── keymap.lua  Global key mappings
 │           │   ├── lazy.lua    lazy.nvim bootstrap and plugin-spec import
-│           │   └── shell.lua   Login-shell commands and environment import
+│           │   └── shell.lua   Login-shell environment import
 │           └── plugins/      One lazy.nvim plugin spec per file (auto-imported)
 ├── .agents/                  Skill definitions for the agent CLIs
 │   └── skills/               One directory per skill, linked into ~/.agents and ~/.claude
@@ -55,10 +55,11 @@ scripts that link them into place.
    `core/lazy.lua`.
 2. `core/basic.lua` applies editor options: hybrid line numbers, 4-space
    indentation, `ignorecase` + `smartcase` search, system-clipboard
-   integration, persistent undo, rounded window borders, etc. It also
-   prefers `pwsh` as the shell on every OS when the executable is available,
-   applying the required `shellcmdflag`/`shellquote`/`shellxquote`
-   adjustments on Windows only.
+   integration, persistent undo, rounded window borders, etc. On Windows it
+   sets `shell` to `pwsh` with the required
+   `shellcmdflag`/`shellquote`/`shellxquote`/`shellredir`/`shellpipe`
+   adjustments (UTF-8 output, no profile); other platforms keep the default
+   shell.
 3. `core/keymap.lua` defines global key mappings.
 4. `core/lazy.lua` bootstraps [lazy.nvim](https://github.com/folke/lazy.nvim)
    (cloning the stable branch on first run) and imports every file in
@@ -74,24 +75,23 @@ set**; a new core module is picked up by adding its `require` to
 Neovide opened from Finder/Dock (or any launcher that does not read `.zshrc`)
 inherits the launchd `PATH`, so nvm's `node`/`npm`, Homebrew tools and
 variables such as `NVM_DIR` are missing — Mason then fails with
-`Could not find executable "npm" in PATH`. `core/shell.lua` covers this in two
-layers:
-
-- `shell.cmd(program, { requires = … })` builds a command that the user's login
-  shell resolves at execution time (used by toggleterm).
-- `sync_env()` imports the login environment once per session: it runs
-  `$SHELL -lic 'command env'`, puts the login `PATH` entries in front of the
-  current ones and fills in other variables only where they are unset. The
-  resolved `PATH` is cached in `stdpath("cache")/shell-path` (nothing else, so no
-  secrets land on disk). A cached `PATH` is applied instantly and refreshed in
-  the background; without a cache the fetch blocks startup only when the `PATH`
-  looks like the launchd default, and otherwise runs in the background as well.
-  A `PATH` that already contains the login entries is left alone, while missing
-  variables are filled in either way, and `sync_env()` reports `synced`,
-  `cached`, `async`, `failed` or `skipped` (also kept in `require("core.shell").status`).
-  A missing shell, a timeout or empty output leaves the environment untouched;
-  Windows is skipped; the fetch child gets a neutral `PATH`, so previously
-  imported entries cannot feed back into the cache.
+`Could not find executable "npm" in PATH`. `core/shell.lua` covers this with
+`sync_env()`, which imports the login environment once per session: it runs
+`$SHELL -lic 'command env'`, puts the login `PATH` entries in front of the
+current ones and fills in other variables only where they are unset. The
+resolved `PATH` is cached in `stdpath("cache")/shell-path` (nothing else, so
+no secrets land on disk) and counts as valid only while the cache file is
+newer than the shell startup files (`~/.zshenv`, `~/.zprofile`, `~/.zshrc`)
+and nvm's default-version alias; anything else is treated as a cache miss.
+A valid cached `PATH` is applied instantly and refreshed in
+the background; on a miss the fetch blocks startup only when
+the `PATH` looks like the launchd default, and otherwise runs in the
+background as well. A `PATH` that already contains the login entries is left
+alone, while missing variables are filled in either way, and `sync_env()`
+returns `synced`, `cached`, `async`, `failed` or `skipped`. A missing shell,
+a timeout or empty output leaves the environment untouched; Windows is
+skipped; the fetch child gets a neutral `PATH`, so previously imported
+entries cannot feed back into the cache.
 
 ### LSP Server Configs
 
