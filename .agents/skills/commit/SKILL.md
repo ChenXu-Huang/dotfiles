@@ -240,7 +240,7 @@ Release mode works from **commit history since the last tag**, not just from the
    git tag "v{version}"
    ```
 
-   The changelog compare links point at `v{version}`, so they stay dead until the tag exists — tagging is part of the release, not an optional extra. Pushing the tag (`git push --follow-tags`) or creating a GitHub release still needs an explicit request.
+   The changelog compare links point at `v{version}`, so they stay dead until the tag exists — tagging is part of the release, not an optional extra. Pushing the tag (`git push origin "v{version}"` — `--follow-tags` only covers annotated tags, not the lightweight ones used here) or creating a GitHub release still needs an explicit request.
 
 ## Do NOT
 
