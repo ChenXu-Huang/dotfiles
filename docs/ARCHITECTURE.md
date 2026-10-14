@@ -55,7 +55,10 @@ scripts that link them into place.
    `core/lazy.lua`.
 2. `core/basic.lua` applies editor options: hybrid line numbers, 4-space
    indentation, `ignorecase` + `smartcase` search, system-clipboard
-   integration, persistent undo, rounded window borders, etc. On Windows it
+   integration, persistent undo, rounded window borders, etc. A `FileType`
+   autocommand enables soft wrapping at word boundaries (`wrap` +
+   `linebreak`, buffer-local) for Markdown and plain-text files only, while
+   everything else keeps the global `nowrap`. On Windows it
    sets `shell` to `pwsh` with the required
    `shellcmdflag`/`shellquote`/`shellxquote`/`shellredir`/`shellpipe`
    adjustments (UTF-8 output, no profile); other platforms keep the default

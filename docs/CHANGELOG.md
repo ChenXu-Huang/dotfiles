@@ -7,12 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `.config/nvim/lua/core/basic.lua`: Markdown and plain-text buffers now
+  soft-wrap at word boundaries (`wrap` + `linebreak` set buffer-locally via a
+  `FileType` autocommand); other file types keep the global `nowrap`.
+
 ### Changed
 
 - `.agents/skills/commit`: release mode (`/commit v{version}`) now tags the
   release commit `v{version}` itself (lightweight, matching the existing
   tags) instead of leaving tagging to a manual follow-up, so the changelog
   compare links work as soon as the release lands.
+
+### Fixed
+
+- `.config/nvim/lua/core/basic.lua`: the Windows shell option was spelled
+  `shellpip`, which Neovim does not have — assigning it raised
+  `Unknown option 'shellpip'` and aborted the rest of `core/init.lua`, so
+  `core.keymap` and `core.lazy` never loaded there: no key mappings and no
+  lazy.nvim, hence no plugins. It is now set as `shellpipe`, which also lets
+  the lines below it run again on Windows (`shellquote`, `shellxquote`).
 
 ## [0.3.0] - 2026-10-11
 
