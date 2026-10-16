@@ -12,6 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.config/nvim/lua/core/basic.lua`: Markdown and plain-text buffers now
   soft-wrap at word boundaries (`wrap` + `linebreak` set buffer-locally via a
   `FileType` autocommand); other file types keep the global `nowrap`.
+- `.agents/skills/code-style`: new skill holding the per-language code style
+  rules. `SKILL.md` is a router that states no rule of its own and dispatches to
+  one self-contained file per language under `references/` (Python, Lua,
+  PowerShell, Bash), so work in one language never loads another language's
+  rules, and `assets/language-template.md` is the skeleton for adding more. Its
+  Python file routes every environment and dependency operation through `uv`
+  (`uv run`, `uvx`) rather than a bare `pip` or a hand-activated virtual
+  environment, leaves dependency changes (`uv add`/`uv remove`, `uv lock`,
+  `uv sync`, `uv python install`) to the user or to an approved escalation so
+  every such run keeps using the shared global uv cache, and allows
+  `UV_CACHE_DIR=./temp/uv-cache` only as a temporary, single-command escape
+  hatch for a dependency-free `uv run` that a sandbox would otherwise fail; a
+  command that downloads must be announced first.
 
 ### Changed
 
@@ -19,6 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   release commit `v{version}` itself (lightweight, matching the existing
   tags) instead of leaving tagging to a manual follow-up, so the changelog
   compare links work as soon as the release lands.
+- `AGENTS.md` and `.agents/skills/commit`: documentation is now written while a
+  commit is prepared rather than after a change — `docs/CHANGELOG.md` and
+  `docs/ARCHITECTURE.md` are updated from the staged diff in that pass, and the
+  later staging steps name only the files the skill wrote instead of running
+  `git add .`, so unrelated working-tree changes stay out of the commit.
+- `.agents/skills/commit`: a commit with nothing staged now stops instead of
+  inventing work, reworking something that is still only an `Unreleased`
+  addition extends that entry rather than filing a `Changed` one, and release
+  mode bumps the project's own version file (refreshing `uv.lock` under uv) and
+  picks the tag style the repository's history shows.
 
 ### Fixed
 

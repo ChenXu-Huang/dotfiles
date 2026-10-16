@@ -217,6 +217,12 @@ create the parent directory when it does not exist yet. A pre-existing
 `~/.claude/skills` that only points at `~/.agents/skills` is treated as foreign
 and needs one `--force` run to become a direct link.
 
+### `code-style`
+
+Per-language code style rules for Python, Lua, PowerShell, and Bash: one
+self-contained file per language, with `assets/language-template.md` as the
+starting point for adding another.
+
 ## PowerShell Profile
 
 `.config/powershell/` holds the Windows PowerShell 7 configuration, which
