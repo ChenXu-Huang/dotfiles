@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `.config/nvim/lua/core/basic.lua`: `scrolloff`/`sidescrolloff` were derived
+  once from the startup window height, so the cursor drifted off-center after
+  the window was resized (Neovide zoom and fullscreen both change the row
+  count). They are now re-derived from `lines` on `VimResized`, keeping the
+  cursor centered at every window size.
+
 ## [0.4.0] - 2026-10-19
 
 ### Added

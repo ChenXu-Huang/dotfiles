@@ -9,9 +9,17 @@ vim.cmd("syntax off")
 g.encoding = "UTF-8"
 opt.fileencoding = "utf-8"
 
-local win_height = vim.fn.winheight(0)
-opt.scrolloff = math.floor((win_height - 1) / 2)
-opt.sidescrolloff = math.floor((win_height - 1) / 2)
+local function center_cursor()
+    local offset = math.floor(vim.o.lines / 2 - 1)
+    opt.scrolloff = offset
+    opt.sidescrolloff = offset
+end
+
+center_cursor()
+
+vim.api.nvim_create_autocmd("VimResized", {
+    callback = center_cursor,
+})
 
 opt.expandtab = true
 opt.tabstop = 4
