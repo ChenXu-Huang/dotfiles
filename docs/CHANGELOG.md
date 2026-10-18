@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-19
+
 ### Added
 
 - `.config/nvim/lua/core/vscode.lua`: the configuration now detects
@@ -78,7 +80,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.agents/skills/commit`: release mode (`/commit v{version}`) now tags the
   release commit `v{version}` itself (lightweight, matching the existing
   tags) instead of leaving tagging to a manual follow-up, so the changelog
-  compare links work as soon as the release lands.
+  compare links work as soon as the release lands; the skill also spells out
+  that pushing such a tag needs an explicit refspec, since `--follow-tags`
+  only carries annotated ones.
 - `AGENTS.md` and `.agents/skills/commit`: documentation is now written while a
   commit is prepared rather than after a change — `docs/CHANGELOG.md` and
   `docs/ARCHITECTURE.md` are updated from the staged diff in that pass, and the
@@ -376,7 +380,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not adjust them automatically), so toggleterm and external commands run
   under PowerShell 7 there.
 
-[Unreleased]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ChenXu-Huang/dotfiles/releases/tag/v0.1.0
