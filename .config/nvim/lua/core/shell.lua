@@ -33,9 +33,13 @@ local session_vars = {
 
 local function login_shell()
     local candidates = { "/bin/zsh", "/bin/bash", "/bin/sh" }
-    if vim.env.SHELL then table.insert(candidates, 1, vim.env.SHELL) end
+    if vim.env.SHELL then
+        table.insert(candidates, 1, vim.env.SHELL)
+    end
     for _, shell in ipairs(candidates) do
-        if vim.fn.executable(shell) == 1 then return shell end
+        if vim.fn.executable(shell) == 1 then
+            return shell
+        end
     end
 end
 
@@ -57,16 +61,22 @@ local function path_includes(path, other)
         have[entry] = true
     end
     for _, entry in ipairs(split_path(other)) do
-        if not have[entry] then return false end
+        if not have[entry] then
+            return false
+        end
     end
     return true
 end
 
 local function path_is_system_default()
     local entries = split_path(vim.env.PATH)
-    if #entries == 0 then return false end
+    if #entries == 0 then
+        return false
+    end
     for _, entry in ipairs(entries) do
-        if not system_dirs[entry] then return false end
+        if not system_dirs[entry] then
+            return false
+        end
     end
     return true
 end
@@ -75,7 +85,9 @@ local function parse_env(text)
     local env = {}
     for line in (text or ""):gmatch("[^\r\n]+") do
         local key, value = line:match("^([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
-        if key then env[key] = value end
+        if key then
+            env[key] = value
+        end
     end
     return env
 end
@@ -94,13 +106,19 @@ end
 
 local function read_cached_path()
     local file = cache_file()
-    if vim.fn.filereadable(file) == 0 then return end
+    if vim.fn.filereadable(file) == 0 then
+        return
+    end
     local mtime = vim.fn.getftime(file)
     for _, rc in ipairs(rc_files) do
-        if vim.fn.getftime(rc) > mtime then return end
+        if vim.fn.getftime(rc) > mtime then
+            return
+        end
     end
     local path = vim.fn.readfile(file)[1]
-    if path and path ~= "" then return path end
+    if path and path ~= "" then
+        return path
+    end
 end
 
 local function write_cached_path(path)
@@ -120,15 +138,21 @@ local function fetch_env(shell)
     local ok, result = pcall(function()
         return vim.system(shell_cmd(shell), shell_opts()):wait()
     end)
-    if not ok or not result or result.code ~= 0 then return end
+    if not ok or not result or result.code ~= 0 then
+        return
+    end
     return parse_env(result.stdout)
 end
 
 local function fetch_env_async(shell, on_done)
     pcall(vim.system, shell_cmd(shell), shell_opts(), function(result)
-        if result.code ~= 0 then return end
+        if result.code ~= 0 then
+            return
+        end
         local env = parse_env(result.stdout)
-        vim.schedule(function() on_done(env) end)
+        vim.schedule(function()
+            on_done(env)
+        end)
     end)
 end
 
@@ -140,11 +164,17 @@ local function merge_path(login_path, current_path, stale_path)
             merged[#merged + 1] = entry
         end
     end
-    for _, entry in ipairs(split_path(login_path)) do add(entry) end
+    for _, entry in ipairs(split_path(login_path)) do
+        add(entry)
+    end
     local stale = {}
-    for _, entry in ipairs(split_path(stale_path)) do stale[entry] = true end
+    for _, entry in ipairs(split_path(stale_path)) do
+        stale[entry] = true
+    end
     for _, entry in ipairs(split_path(current_path)) do
-        if not stale[entry] then add(entry) end
+        if not stale[entry] then
+            add(entry)
+        end
     end
     return table.concat(merged, ":")
 end
@@ -164,22 +194,30 @@ end
 local function sync(shell, opts)
     local cached = read_cached_path()
     if cached then
-        if not opts.force and path_includes(vim.env.PATH, cached) then return "skipped" end
+        if not opts.force and path_includes(vim.env.PATH, cached) then
+            return "skipped"
+        end
         apply_env_if_needed({ PATH = cached })
     end
 
     if not (opts.force or (not cached and path_is_system_default())) then
         fetch_env_async(shell, function(env)
             apply_env_if_needed(env, cached)
-            if env.PATH then write_cached_path(env.PATH) end
+            if env.PATH then
+                write_cached_path(env.PATH)
+            end
         end)
         return cached and "cached" or "async"
     end
 
     local env = fetch_env(shell)
-    if not env then return "failed" end
+    if not env then
+        return "failed"
+    end
     apply_env_if_needed(env, cached)
-    if env.PATH then write_cached_path(env.PATH) end
+    if env.PATH then
+        write_cached_path(env.PATH)
+    end
     return "synced"
 end
 
@@ -190,7 +228,9 @@ function M.sync_env(opts)
     end
     synced = true
     local shell = login_shell()
-    if not shell then return "failed" end
+    if not shell then
+        return "failed"
+    end
     return sync(shell, opts)
 end
 

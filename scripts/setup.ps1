@@ -14,26 +14,6 @@ $ErrorActionPreference = 'Stop'
 function Write-Info { param([string]$Message) Write-Host $Message -ForegroundColor Green }
 function Write-Hint { param([string]$Message) Write-Host "  -> $Message" -ForegroundColor Cyan }
 
-# Install-ScoopPackage <package> <command>: install <package> with Scoop when
-# <command> is missing; only warns when Scoop itself is unavailable.
-function Install-ScoopPackage {
-    param([string]$Package, [string]$Command)
-    if (Get-Command $Command -ErrorAction SilentlyContinue) {
-        Write-Info "Found: $Command"
-        return $true
-    }
-    if (Get-Command scoop -ErrorAction SilentlyContinue) {
-        Write-Info "Installing $Package with Scoop..."
-        scoop install $Package
-        if ($LASTEXITCODE -eq 0) { return $true }
-        Write-Warning "scoop install $Package failed; install it manually."
-    } else {
-        Write-Warning "$Command is not installed and Scoop was not found."
-        Write-Hint "Install Scoop first (https://scoop.sh), then: scoop install $Package"
-    }
-    return $false
-}
-
 # Get-ChildItem on the parent sees the entry itself, so this also catches
 # broken links that Test-Path/Get-Item would silently miss.
 function Get-ExistingEntry {
@@ -126,8 +106,6 @@ function New-ConfigLink {
 
 # --- Environment checks -----------------------------------------------------
 
-$MissingDeps = $false
-
 $Nvim = Get-Command nvim -ErrorAction SilentlyContinue
 if (-not $Nvim) {
     Write-Warning 'Neovim is not installed or not on PATH.'
@@ -137,22 +115,14 @@ if (-not $Nvim) {
         Write-Hint 'Install it with: winget install Neovim.Neovim'
     }
 } else {
-    # This configuration relies on Neovim 0.11+ (vim.lsp auto-discovery).
+    # This configuration relies on Neovim 0.12+ (vim.pack and bundled treesitter).
     $VersionLine = & nvim --version | Select-Object -First 1
     if ($VersionLine -match 'NVIM v(\d+)\.(\d+)') {
-        if ([int]$Matches[1] -eq 0 -and [int]$Matches[2] -lt 11) {
-            Write-Warning "Neovim $($Matches[0]) detected; this configuration requires Neovim 0.11 or newer."
+        if ([int]$Matches[1] -eq 0 -and [int]$Matches[2] -lt 12) {
+            Write-Warning "Neovim $($Matches[0]) detected; this configuration requires Neovim 0.12 or newer."
         }
     }
 }
-
-# --- nvim-treesitter external dependencies ----------------------------------
-# The configuration uses the main-branch nvim-treesitter, which shells out to
-# the tree-sitter CLI and a C compiler (vim.env.CC = "gcc") to build parsers.
-# Missing pieces are installed with Scoop when it is available.
-
-if (-not (Install-ScoopPackage 'tree-sitter' 'tree-sitter')) { $MissingDeps = $true }
-if (-not (Install-ScoopPackage 'gcc' 'gcc')) { $MissingDeps = $true }
 
 # --- Link targets -----------------------------------------------------------
 
@@ -195,7 +165,3 @@ foreach ($Link in $Links) {
 }
 
 if ($Failed) { exit 1 }
-
-if ($MissingDeps) {
-    Write-Warning 'some dependencies are still missing; fix the items above, then run :TSUpdate inside Neovim.'
-}

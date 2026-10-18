@@ -8,14 +8,17 @@ tracked in Git.
 
 ## Requirements
 
-- **Neovim 0.11 or newer** — the configuration relies on `vim.lsp.config`
-  auto-discovery, and the setup scripts warn when the version is older.
-- **Git** — lazy.nvim clones plugins into `stdpath("data")` on first start.
-- **nvim-treesitter dependencies** — the `tree-sitter` CLI and a C compiler
-  (`cc`, `gcc` or `clang`) to build parsers.
+- **Neovim 0.12 or newer** — the configuration is built on `vim.pack`, relies on
+  `vim.lsp.config` auto-discovery and on the treesitter support bundled with
+  Neovim; the setup scripts warn when the version is older.
+- **Git** — `vim.pack` clones plugins into `stdpath("data")` on first start.
 - Optional: a Nerd Font (`JetBrainsMono Nerd Font Mono` is the configured GUI
   font), [Neovide](https://neovide.dev), and `pwsh` — on Windows Neovim uses
   it as `shell`.
+- Optional: **VS Code** with the
+  [vscode-neovim](https://marketplace.visualstudio.com/items?itemName=asvetliakov.vscode-neovim)
+  extension — the same configuration detects it and trims itself down, see
+  [VS Code (vscode-neovim)](#vs-code-vscode-neovim).
 - Optional: **PowerShell 7** on Windows — `scripts/setup.ps1` links the
   profile in `.config/powershell/` into the per-user configuration directory
   that `pwsh` reads.
@@ -54,10 +57,7 @@ Each script links the repository's sources into that platform's locations:
 
 Both scripts also:
 
-- warn when Neovim is missing or older than 0.11;
-- install the nvim-treesitter dependencies with [Homebrew](https://brew.sh) on
-  macOS and with [Scoop](https://scoop.sh) on Windows, printing install hints
-  when the package manager is unavailable;
+- warn when Neovim is missing or older than 0.12;
 - link `.agents/skills` into both the agent and the Claude Code skills
   directories, creating a missing target directory;
 - leave an existing target alone: they skip when it already points at this
@@ -70,8 +70,7 @@ Both scripts also:
 `-f`/`--force` (`-Force` on Windows) replaces the target instead: a foreign
 link is removed and a real file or directory is backed up to
 `<target>.bak.<timestamp>` first. `-h`/`--help` prints the usage. The first
-Neovim start bootstraps lazy.nvim and installs the plugins, which needs network
-access.
+Neovim start installs the plugins with `vim.pack`, which needs network access.
 
 ### Shell Configuration
 
@@ -127,64 +126,129 @@ docs/                 ARCHITECTURE.md and CHANGELOG.md
 
 Inside `.config/nvim/`:
 
-- `init.lua` requires `lua/core/`, which imports the login-shell environment
-  first and then the editor options, the global mappings and the lazy.nvim
-  bootstrap, in that order.
-- `lua/plugins/` holds one lazy.nvim spec per plugin and is auto-imported, so
-  adding a file there is all it takes to extend the plugin set.
-- `lsp/` holds one `vim.lsp.config` table per language server, auto-discovered
-  by Neovim 0.11+.
+- `init.lua` creates the global plugin table, loads `lua/core/` — which imports
+  the login-shell environment first and then the editor options, the mappings,
+  the LSP defaults and the filetype options — and finally loads `lua/plugins/`.
+- `lua/plugins/config.lua` is the single source of truth for plugins: one
+  section per plugin holds its repository, options and keymaps, and
+  `lua/plugins/pack.lua` turns that table into `vim.pack` specs with lazy
+  loading (see [Plugin management](#plugin-management)).
+- `lua/lsp/` holds the LSP wiring: the per-server settings table, the mason and
+  mason-lspconfig sections, completion, formatting and the extra sections.
+- `lua/core/vscode.lua` is loaded only when Neovim runs inside vscode-neovim.
 
 The plugin set covers LSP and tooling (mason, none-ls, lspsaga), completion
-(blink.cmp with friendly-snippets), navigation (nvim-tree, bufferline, hop),
-editing (autopairs, surround, indent-blankline, grug-far), git (gitsigns),
-terminals (toggleterm) and appearance (tokyonight, lualine, nvim-treesitter).
+(blink.cmp with friendly-snippets), navigation (nvim-tree, telescope, hop),
+editing (autopairs, surround, indent-blankline, grug-far), git (gitsigns,
+neogit) and appearance (tokyonight, lualine, dashboard, which-key). Syntax
+highlighting comes from the treesitter support built into Neovim 0.12, so no
+treesitter plugin is installed, and the terminal is Neovim's built-in one
+(`lua/core/terminal.lua`).
+
+Buffer switching is telescope's `buffers` picker: `bufferline.nvim` has had no
+release since January 2025, so `<leader>bi` opens that picker, which selects a
+buffer with `<CR>`, opens it in a split with `<C-s>`/`<C-v>`, and deletes the
+selected one with `<M-d>`.
+
+### Plugin management
+
+Plugins are managed by `vim.pack`: they are installed on first start, live in
+`stdpath("data")/site/pack/core/opt`, and `nvim-pack-lock.json` next to
+`init.lua` (tracked in Git) pins the revisions.
+
+| Command | Action |
+| --- | --- |
+| `:VellumProfile` | List every plugin with its state (`loaded`, `not loaded`, `disabled`) |
+| `:VellumUpdate` | Update all plugins with `vim.pack.update()` and pull the repository |
+
+Adding a plugin means adding one section to `lua/plugins/config.lua`; the
+field-by-field reference lives in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#plugin-management).
 
 ## Key Mappings
 
-`<leader>` is `Space` and `<localleader>` is `,`. `<C-z>` is mapped globally
-and the Neovide mappings are added when the GUI is detected; everything else
-comes from plugin specs, so it loads lazily and carries `desc` descriptions
-that show up in keymap listings such as `:map`.
+`<leader>` is `Space` and `<localleader>` is `,`. `<C-z>` is mapped globally,
+the Neovide mappings are added when the GUI is detected, and the terminal keys
+live in `core/keymap.lua`; the rest comes from the plugin table, so it loads
+lazily. All of them carry `desc` descriptions that show up in keymap listings
+such as `:map`.
 
 | Mapping | Action |
 | --- | --- |
-| `<leader>uf` | Toggle the file tree |
+| `<leader>uf` | Toggle the file tree (VS Code: the sidebar) |
 | `<leader>uw` | Toggle line wrap |
-| `<leader>tt` | Toggle the terminal (vertical by default) |
-| `<leader>tf` | Float terminal |
-| `<leader>tv` | Vertical terminal |
-| `<leader>th` | Horizontal terminal |
-| `<leader>t1` / `<leader>t2` | Toggle terminal 1 / 2 |
-| `<leader>td` | Toggle a `dsh-tui --resume` session |
+| `<leader>st` | Toggle the terminal (float) |
+| `<leader>sv` / `<leader>sh` | Vertical / horizontal terminal |
+| `<leader>sd` | Toggle a `dsh-tui --resume` session |
 | `<leader>bh` / `<leader>bl` | Previous / next buffer |
-| `<leader>bp` / `<leader>bc` | Pick a buffer / pick a buffer to close |
-| `<leader>bd` / `<leader>bo` | Delete buffer / close other buffers |
+| `<leader>bi` | Buffer picker (telescope `buffers`; `<M-d>` deletes the selection) |
+| `<leader>bd` / `<leader>bo` | Delete this buffer / the other buffers |
+| `<leader>tf` / `<leader>t<C-f>` | Find files / live grep (telescope) |
 | `<leader>lf` | Format the buffer (ruff for Python, StyLua for Lua) |
 | `<leader>lr` | Rename symbol |
 | `<leader>lc` | Code action |
-| `<leader>ld` | Go to definition |
+| `<leader>ld` / `<leader>lD` | Go to definition / peek definition |
+| `<leader>li` | Go to implementation |
 | `<leader>lh` | Hover documentation |
 | `<leader>lR` | Find references |
 | `<leader>ln` / `<leader>lp` | Next / previous diagnostic |
-| `<leader>uhp` | Preview git hunk |
-| `<leader>uhs` | Stage git hunk |
-| `<leader>uhr` | Reset git hunk |
-| `<leader>uhb` / `<leader>uhd` | Blame line / diff this file |
-| `]h` / `[h` | Next / previous git hunk |
+| `<leader>le` / `<leader>lE` | Next error |
+| `<leader>lP` / `<leader>lt` | Line diagnostics / trouble panel |
+| `<leader>gn` / `<leader>gp` | Next / previous git hunk |
+| `<leader>gP` / `<leader>gs` | Preview / stage git hunk |
+| `<leader>gu` / `<leader>gr` | Undo stage / reset hunk |
+| `<leader>gb` / `<leader>gl` | Git blame / blame line |
+| `<leader>gB` | Stage the buffer |
+| `<leader>gt` | Neogit |
 | `<leader>hp` | Hop to word |
-| `<C-z>` | Undo, in normal and insert mode |
+| `<leader>ug` | Project-wide find and replace (grug-far) |
+| `<leader>ul` / `<leader>uu` | Plugin list / undotree |
+| `<leader>uc` / `<leader>ut` | View configuration / todo list |
+| `<leader>qn` / `<leader>qp` / `<leader>qo` / `<leader>qc` | Quickfix next / prev / open / close |
+| `<C-z>` | Undo, in normal, visual and insert mode |
 | `<F11>` / `<C-=>` / `<C-->` | Neovide: fullscreen, zoom in, zoom out |
 
 Inside the file tree `g?` lists its own mappings, and `I`, `H` and `U` toggle
-the git-ignored, dotfile and custom filters. In a terminal `<Esc><Esc>` leaves
-terminal mode, `<C-h>`/`<C-j>`/`<C-k>`/`<C-l>` move between windows, and
-`<A-t>` closes the terminal.
+the git-ignored, dotfile and custom filters. A terminal opens in insert mode,
+`<Esc>` leaves terminal mode, `<M-s>` toggles it, and a count picks another
+terminal: `2<leader>st` toggles terminal 2. `:VellumTerm` does the same from the
+command line — `:VellumTerm 3 direction=vertical size=50`, `:VellumTerm dsh`.
+
+## VS Code (vscode-neovim)
+
+Install the [vscode-neovim](https://marketplace.visualstudio.com/items?itemName=asvetliakov.vscode-neovim)
+extension and leave its options untouched — with `vscode-neovim.neovimClean`,
+`vscode-neovim.NVIM_APPNAME` and `vscode-neovim.neovimInitVimPaths.*` at their
+defaults it reads this same configuration, and Neovim detects the editor
+through `vim.g.vscode`.
+
+In that environment the configuration trims itself down, because VS Code already
+provides the corresponding features:
+
+- the plugin loader only loads the sections marked `vscode = true` in
+  `lua/plugins/config.lua` — currently `grug-far`, `hop`, `nvim-surround` and
+  `nvim-autopairs`; add the flag to any other section (telescope, say) to use
+  it inside VS Code too;
+- the LSP and completion stack (`mason`, `none-ls`, `blink.cmp`, `lspsaga`,
+  `nvim-lspconfig`) stays off, and no Neovim LSP client is started;
+- no rendering plugin fights the VS Code UI (`lualine`, `indent-blankline`,
+  `nvim-tree`, `gitsigns` and friends are all off);
+- the clipboard goes through the VS Code API, and the login-shell environment
+  import is skipped.
+
+`lua/core/vscode.lua` rebinds the keys those disabled plugins would have owned
+to the equivalent VS Code commands, so the muscle memory carries over:
+formatting, rename, code actions, definition/hover/references, the diagnostics
+panel, quick open, find in files, the theme picker, the sidebar and terminal
+toggles, the SCM view, git-hunk navigation and staging, and folding all stay on
+the keys you already know.
 
 ## Notes
 
-- `lazy-lock.json` is git-ignored on purpose, so every machine floats plugin
-  versions independently.
+- The central plugin table and its loader are adapted from
+  [IceNvim](https://github.com/Shaobin-Jiang/IceNvim).
+- `nvim-pack-lock.json` is tracked so every machine installs the same plugin
+  revisions; `:VellumUpdate` moves it forward.
 - `temp/` is the scratch directory for throwaway files and is git-ignored.
 - Because `core/shell.lua` imports the login-shell environment once per
   session, a Neovide started from Finder/Dock still finds `node`, `npm` and

@@ -1,49 +1,105 @@
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.cursorline = true
-vim.opt.colorcolumn = "100"
-vim.opt.expandtab = true
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 0
-vim.opt.smartindent = true
-vim.opt.autoread = true
-vim.opt.splitbelow = true
-vim.opt.splitright = true
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-vim.opt.hlsearch = false
-vim.opt.showmode = false
-vim.opt.wrap = false
-vim.opt.clipboard = "unnamedplus"
-vim.opt.termguicolors = true
-vim.opt.scrolloff = 5
-vim.opt.signcolumn = "yes"
-vim.opt.updatetime = 250
-vim.opt.undofile = true
-vim.opt.winborder = "rounded"
-vim.opt.title = true
-vim.opt.titlestring = "%{fnamemodify(getcwd(), ':~')} - nvim"
+local utils = require("core.utils")
 
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = { "markdown", "text" },
-    callback = function ()
-        vim.opt_local.wrap = true
-        vim.opt_local.linebreak = true
+local g = vim.g
+local opt = vim.opt
+
+vim.cmd("language en_US.UTF-8")
+vim.cmd("syntax off")
+
+g.encoding = "UTF-8"
+opt.fileencoding = "utf-8"
+
+local win_height = vim.fn.winheight(0)
+opt.scrolloff = math.floor((win_height - 1) / 2)
+opt.sidescrolloff = math.floor((win_height - 1) / 2)
+
+opt.expandtab = true
+opt.tabstop = 4
+opt.shiftwidth = 0
+opt.shiftround = true
+opt.smartindent = true
+
+opt.ignorecase = true
+opt.smartcase = true
+opt.hlsearch = false
+
+opt.autoread = true
+opt.updatetime = 250
+opt.undofile = true
+opt.title = true
+opt.titlestring = "%{fnamemodify(getcwd(), ':~')} - nvim"
+
+opt.whichwrap = "<,>,[,]"
+opt.hidden = true
+opt.mouse = "a"
+opt.mousemodel = "extend"
+opt.backup = false
+opt.writebackup = false
+opt.swapfile = false
+opt.timeoutlen = 500
+opt.splitbelow = true
+opt.splitright = true
+opt.cmdheight = 1
+opt.cmdwinheight = 1
+opt.shortmess = vim.o.shortmess .. "s"
+opt.pumheight = 16
+opt.showtabline = 0
+opt.nrformats = "bin,hex,alpha"
+opt.foldlevel = 99
+opt.foldlevelstart = 99
+opt.foldenable = false
+opt.laststatus = 3
+
+if not utils.is_vscode then
+    opt.number = true
+    opt.relativenumber = true
+    opt.cursorline = true
+    opt.colorcolumn = "80"
+    opt.signcolumn = "yes"
+    opt.termguicolors = true
+    opt.winborder = "rounded"
+    opt.showmode = false
+    opt.wrap = false
+
+    vim.api.nvim_create_autocmd("WinNew", {
+        callback = function()
+            vim.wo.wrap = false
+        end,
+    })
+end
+
+if utils.is_windows then
+    opt.shellslash = true
+    opt.shell = "pwsh"
+    opt.shellcmdflag =
+        "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
+    opt.shellredir = "-RedirectStandardOutput %s -NoNewWindow -Wait"
+    opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
+    opt.shellquote = ""
+    opt.shellxquote = ""
+end
+
+opt.shadafile = "NONE"
+vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdwinEnter" }, {
+    once = true,
+    callback = function()
+        local shada = vim.fs.joinpath(vim.fn.stdpath("state"), "shada/main.shada")
+        vim.o.shadafile = shada
+        vim.cmd("rshada! " .. shada)
     end,
 })
 
-if vim.fn.has("win32") == 1 then
-    vim.opt.shell = "pwsh"
-    vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;"
-    vim.opt.shellredir = "-RedirectStandardOutput %s -NoNewWindow -Wait"
-    vim.opt.shellpipe = "2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode"
-    vim.opt.shellquote = ""
-    vim.opt.shellxquote = ""
-end
+vim.api.nvim_create_autocmd("CmdwinEnter", {
+    callback = function()
+        vim.cmd("startinsert")
+        vim.wo.number = false
+        vim.wo.relativenumber = false
+    end,
+})
 
 if vim.g.neovide then
     vim.o.guifont = "JetBrainsMono Nerd Font Mono"
-    vim.g.neovide_scale_factor = 0.9
+    vim.g.neovide_scale_factor = 0.85
     vim.g.neovide_opacity = 0.95
     vim.g.neovide_cursur_animation_length = 0.13
     vim.g.neovide_cursur_vfx_mode = "railgun"

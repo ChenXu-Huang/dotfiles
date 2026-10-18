@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `.config/nvim/lua/core/vscode.lua`: the configuration now detects
+  vscode-neovim (`vim.g.vscode`) and trims itself down there, so one config
+  serves both the standalone editor and VS Code: the LSP/completion stack
+  (mason, mason-lspconfig, mason-tool-installer, none-ls, blink, lspsaga,
+  nvim-lspconfig) and every rendering plugin VS Code already provides
+  (lualine, indent-blankline, nvim-tree, gitsigns, telescope) stay disabled
+  because the loader only loads sections marked `vscode = true`, the editor-only
+  options are skipped, the login-shell import is not run, the clipboard goes
+  through the VS Code API, and the `<leader>l*` and `<leader>uf` keys call the
+  equivalent VS Code commands.
+- `.config/nvim/lua/plugins/config.lua` and
+  `.config/nvim/lua/plugins/pack.lua`: plugins, their options and their
+  keymaps now live in one central table keyed by a logical name, and the loader
+  turns it into `vim.pack` specs, replacing lazy.nvim. Section fields cover
+  `enabled`, `version`, `main`, `opts`, `config`, `dependencies`, `init`,
+  `build`, `priority` and the lazy triggers `lazy`/`event`/`ft`/`cmd`/`keys`;
+  the `VeryLazy` custom event loads a plugin after `VimEnter`. Triggers are
+  registered before `vim.pack.add()` runs, and lazy keymaps load and set up the
+  plugin on first press before running the binding's action. The `blink`
+  section registers blink.cmp's LSP capabilities through `vim.lsp.config("*")`
+  when it is set up.
+- `.config/nvim/lua/core/{utils,ft}.lua` and `.config/nvim/lua/lsp/`: platform
+  checks plus mapping and float helpers, the `FileType`-scoped options, and the
+  LSP wiring split into one module per concern (server settings, enablement and
+  diagnostics, completion, formatting, and the lspsaga/trouble sections) that
+  used to live inside the plugin table.
+- `.config/nvim/lua/core/terminal.lua`: the terminal now runs on Neovim's
+  built-in one. `Vellum.terminal` opens a float, a vertical split or a
+  horizontal split, keeps a size per direction and the last mode across
+  toggles, and exposes `toggle`/`toggle_current`/`dispose` plus `:VellumTerm`
+  (`:VellumTerm 3 direction=vertical size=50`). `<leader>st`/`sv`/`sh` use
+  `v:count1` as the terminal id, `<M-s>` toggles the terminal under the cursor,
+  and `<leader>sd` keeps the `dsh-tui --resume` session with its `<Esc>`
+  passthrough and exit-code handling.
+- `.config/nvim/lua/plugins/profile.lua`: `:VellumProfile` lists every plugin
+  with its state (`loaded`, `not loaded`, `disabled`) and `:VellumUpdate` wraps
+  `vim.pack.update()`.
 - `.config/nvim/lua/core/basic.lua`: Markdown and plain-text buffers now
   soft-wrap at word boundaries (`wrap` + `linebreak` set buffer-locally via a
   `FileType` autocommand); other file types keep the global `nowrap`.
@@ -28,6 +65,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `.config/nvim`: the configuration now requires **Neovim 0.12 or newer**
+  (`vim.pack`, treesitter bundled with Neovim) instead of 0.11; the setup
+  scripts check for the new version and no longer install the nvim-treesitter
+  build dependencies (`tree-sitter` CLI, a C compiler).
+- `.config/nvim/nvim-pack-lock.json` replaces `lazy-lock.json` as the plugin
+  lockfile, and unlike it is tracked in Git so every machine installs the same
+  revisions; `:VellumUpdate` (or `vim.pack.update()`) moves it forward.
+- `.config/nvim/lua/core/keymap.lua`: the `<C-z>` undo mapping is registered for
+  normal, insert and visual mode only, so in a terminal it reaches the running
+  job again instead of being swallowed by a no-op mapping.
 - `.agents/skills/commit`: release mode (`/commit v{version}`) now tags the
   release commit `v{version}` itself (lightweight, matching the existing
   tags) instead of leaving tagging to a manual follow-up, so the changelog
@@ -43,14 +90,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   mode bumps the project's own version file (refreshing `uv.lock` under uv) and
   picks the tag style the repository's history shows.
 
+### Removed
+
+- `.config/nvim`: lazy.nvim and its one-spec-per-file layout in `lua/plugins/`
+  are gone in favour of `vim.pack` and the central plugin table, and
+  nvim-treesitter was dropped because Neovim 0.12 bundles treesitter
+  highlighting and parsers; the parsers already installed under
+  `stdpath("data")/site` keep working. Since no parser is compiled during
+  setup any more, the `tree-sitter` CLI and C compiler requirements are gone
+  as well.
+- `.config/nvim`: `bufferline.nvim` was replaced by `telescope.nvim`, whose
+  `buffers` picker covers selecting, previewing and deleting buffers and is
+  actively maintained, where bufferline has had no release since January 2025.
+  `<leader>bi` opens that picker (deletion is `<M-d>` inside it), `<leader>bh`/
+  `<leader>bl` cycle buffers, `<leader>bd` deletes the current buffer and
+  `<leader>bo` closes the others; `<leader>tf` and `<leader>t<C-f>` open
+  `find_files` and `live_grep`.
+- `.config/nvim/lua/plugins/config.lua`: `toggleterm.nvim` is gone — the
+  built-in terminal in `core/terminal.lua` covers the float and split toggles,
+  the terminal-scoped keys and the `dsh-tui` session, so the plugin and its
+  `nvim-pack-lock.json` entry were dropped.
+
 ### Fixed
 
 - `.config/nvim/lua/core/basic.lua`: the Windows shell option was spelled
   `shellpip`, which Neovim does not have — assigning it raised
-  `Unknown option 'shellpip'` and aborted the rest of `core/init.lua`, so
-  `core.keymap` and `core.lazy` never loaded there: no key mappings and no
-  lazy.nvim, hence no plugins. It is now set as `shellpipe`, which also lets
-  the lines below it run again on Windows (`shellquote`, `shellxquote`).
+  `Unknown option 'shellpip'` and aborted the rest of `core/init.lua`, so the
+  later core modules never loaded and no key mappings were registered. It is now
+  set as `shellpipe`, which also lets the lines below it run again on Windows
+  (`shellquote`, `shellxquote`).
 
 ## [0.3.0] - 2026-10-11
 

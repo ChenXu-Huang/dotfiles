@@ -43,26 +43,6 @@ warn() { printf '%sWarning: %s%s\n' "$C_WARN" "$*" "$C_OFF" >&2; }
 error() { printf '%sError: %s%s\n' "$C_ERR" "$*" "$C_OFF" >&2; }
 hint() { printf '%s  -> %s%s\n' "$C_HINT" "$*" "$C_OFF" >&2; }
 
-# brew_install <formula> <command>: install <formula> with Homebrew when
-# <command> is missing; only warns when Homebrew itself is unavailable.
-brew_install() {
-    if command -v "$2" >/dev/null 2>&1; then
-        info "Found: $2"
-        return 0
-    fi
-    if command -v brew >/dev/null 2>&1; then
-        info "Installing $1 with Homebrew..."
-        if brew install "$1"; then
-            return 0
-        fi
-        warn "brew install $1 failed; install it manually."
-    else
-        warn "$2 is not installed and Homebrew was not found."
-        hint "Install Homebrew first (https://brew.sh), then: brew install $1"
-    fi
-    return 1
-}
-
 # link_config <source> <target>: symlink <target> to <source>. Skips when the
 # link is already correct, replaces a foreign link or backs up a real file or
 # directory with --force, and returns non-zero when the target is left alone.
@@ -143,7 +123,7 @@ if ! command -v nvim >/dev/null 2>&1; then
             ;;
     esac
 else
-    # This configuration relies on Neovim 0.11+ (vim.lsp auto-discovery).
+    # This configuration relies on Neovim 0.12+ (vim.pack and bundled treesitter).
     NVIM_VERSION=$(nvim --version 2>/dev/null | sed -n '1s/^NVIM v\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/p')
     case "$NVIM_VERSION" in
         0.*)
@@ -151,45 +131,13 @@ else
             case "$minor" in
                 ''|*[!0-9]*) : ;;  # unparsable, skip the check
                 *)
-                    if [ "$minor" -lt 11 ]; then
-                        warn "Neovim $NVIM_VERSION detected; this configuration requires Neovim 0.11 or newer."
+                    if [ "$minor" -lt 12 ]; then
+                        warn "Neovim $NVIM_VERSION detected; this configuration requires Neovim 0.12 or newer."
                     fi
                     ;;
             esac
             ;;
     esac
-fi
-
-# --- nvim-treesitter external dependencies ----------------------------------
-# The configuration uses the main-branch nvim-treesitter, which shells out to
-# the tree-sitter CLI and a C compiler (vim.env.CC = "gcc") to build parsers.
-
-MISSING_DEPS=0
-
-if [ "$PLATFORM" = macOS ]; then
-    # The tree-sitter formula ships only libtree-sitter; the CLI lives in the
-    # separate tree-sitter-cli formula.
-    brew_install tree-sitter-cli tree-sitter || MISSING_DEPS=1
-    if command -v cc >/dev/null 2>&1 || command -v gcc >/dev/null 2>&1 \
-        || command -v clang >/dev/null 2>&1; then
-        info "Found: C compiler"
-    else
-        warn "no C compiler found; parser compilation will fail."
-        hint "Install the Xcode Command Line Tools: xcode-select --install"
-        MISSING_DEPS=1
-    fi
-else
-    if ! command -v tree-sitter >/dev/null 2>&1; then
-        warn "tree-sitter CLI is not installed; nvim-treesitter needs it to build parsers."
-        hint "Install it via your package manager or: npm install -g tree-sitter-cli"
-        MISSING_DEPS=1
-    fi
-    if ! command -v cc >/dev/null 2>&1 && ! command -v gcc >/dev/null 2>&1 \
-        && ! command -v clang >/dev/null 2>&1; then
-        warn "no C compiler found; parser compilation will fail."
-        hint "Install one with your package manager, e.g.: sudo apt install build-essential"
-        MISSING_DEPS=1
-    fi
 fi
 
 # --- Link targets ----------------------------------------------------------
@@ -211,8 +159,4 @@ fi
 
 if [ "$FAILED" -eq 1 ]; then
     exit 1
-fi
-
-if [ "$MISSING_DEPS" -eq 1 ]; then
-    warn "some dependencies are still missing; fix the items above, then run :TSUpdate inside Neovim."
 fi
