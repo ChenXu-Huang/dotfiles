@@ -768,6 +768,16 @@ config.winsep = {
     },
 }
 
+config["better-escape"] = {
+    "max397574/better-escape.nvim",
+    event = "InsertEnter",
+    main = "better_escape",
+    opts = {
+        default_mappings = false,
+        mappings = { i = { j = { j = "<Esc>" } } },
+    },
+}
+
 config["cyberdream"] = { "scottmckendry/cyberdream.nvim", lazy = true }
 config["everforest"] = { "sainnhe/everforest", lazy = true }
 config["gruvbox"] = { "ellisonleao/gruvbox.nvim", lazy = true }

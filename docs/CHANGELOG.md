@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `.config/nvim/lua/plugins/config.lua`: `better-escape.nvim` leaves insert
+  mode on `jj` without the `timeoutlen` wait a plain insert-mode mapping would
+  cause. Its default mappings are disabled, so only insert-mode `jj` escapes;
+  the section sets `main = "better_escape"` because the loader cannot infer
+  that module name from the repository.
+
 ### Fixed
 
 - `.config/nvim/lua/core/basic.lua`: `scrolloff`/`sidescrolloff` were derived

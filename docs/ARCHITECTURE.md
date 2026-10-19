@@ -179,6 +179,7 @@ provides the environment, and a blocking fetch would only delay the extension.
 | Section | Plugin | Purpose |
 | --- | --- | --- |
 | `autopairs` | windwp/nvim-autopairs | Automatic bracket/quote pairing |
+| `better-escape` | max397574/better-escape.nvim | Leaves insert mode on `jj` without the `timeoutlen` delay |
 | `blink` | saghen/blink.cmp | Completion engine (with friendly-snippets) |
 | `gitsigns` | lewis6991/gitsigns.nvim | Git hunk signs in the signcolumn with `<leader>gn`/`<leader>gp` navigation and `<leader>gs`/`<leader>gr` staging |
 | `grug-far` | MagicDuck/grug-far.nvim | Project-wide search and replace |
