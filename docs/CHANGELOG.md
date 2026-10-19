@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-19
+
 ### Added
 
 - `.config/nvim/lua/plugins/config.lua`: `better-escape.nvim` leaves insert
@@ -410,6 +412,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   under PowerShell 7 there.
 
 [Unreleased]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.4.0...HEAD
+[0.4.1]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ChenXu-Huang/dotfiles/compare/v0.1.0...v0.2.0
