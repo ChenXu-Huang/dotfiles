@@ -404,6 +404,9 @@ config.tree = {
                 show_info = { "n", "i", api.node.show_info_popup },
             }, opt)
         end,
+        renderer = {
+            group_empty = true,
+        },
         git = {
             enable = false,
         },
@@ -419,8 +422,6 @@ config.tree = {
         view = {
             width = 30,
             side = "left",
-            number = true,
-            relativenumber = true,
             signcolumn = "yes",
         },
         actions = {

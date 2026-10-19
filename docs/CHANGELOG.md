@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the section sets `main = "better_escape"` because the loader cannot infer
   that module name from the repository.
 
+### Changed
+
+- `.config/nvim/lua/plugins/config.lua`: nvim-tree hides its line numbers and
+  groups empty directories.
+
 ### Fixed
 
 - `.config/nvim/lua/core/basic.lua`: `scrolloff`/`sidescrolloff` were derived
@@ -22,6 +27,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the window was resized (Neovide zoom and fullscreen both change the row
   count). They are now re-derived from `lines` on `VimResized`, keeping the
   cursor centered at every window size.
+- `.config/nvim/lua/core/ft.lua`: the Python `FileType` handler ran
+  `:compiler python`, which Neovim 0.12 no longer ships (`E666`); an error in
+  an autocommand stops the remaining `FileType` handlers, so Python had
+  neither treesitter highlighting nor pyright. The call and the `<F9>`
+  `:make` mapping that never ran are removed.
+- `.config/nvim/lua/core/terminal.lua`: terminal windows now set
+  `sidescrolloff = 0` (window-local, on `TermOpen`/`BufWinEnter`), so moving
+  the cursor right in normal mode no longer scrolls the whole view early.
 
 ## [0.4.0] - 2026-10-19
 

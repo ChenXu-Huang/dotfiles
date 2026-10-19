@@ -253,6 +253,21 @@ M.complete = function(arglead)
     end, items)
 end
 
+vim.api.nvim_create_autocmd({ "TermOpen", "BufWinEnter" }, {
+    callback = function(args)
+        if vim.bo[args.buf].buftype ~= "terminal" then
+            return
+        end
+
+        local win = vim.fn.bufwinid(args.buf)
+        if win == -1 then
+            return
+        end
+
+        vim.api.nvim_set_option_value("sidescrolloff", 0, { win = win })
+    end,
+})
+
 Vellum.terminal = M
 
 return M

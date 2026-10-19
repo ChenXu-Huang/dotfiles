@@ -40,9 +40,6 @@ Vellum.ft = {
     python = function()
         vim.bo.formatoptions = "tcqjor"
         vim.wo.colorcolumn = "88"
-
-        vim.cmd("compiler python")
-        vim.keymap.set("n", "<F9>", ":silent make | copen<CR>", { buffer = 0 })
     end,
     tex = function()
         vim.wo.wrap = true
