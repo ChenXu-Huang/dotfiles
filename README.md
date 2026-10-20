@@ -9,9 +9,15 @@ tracked in Git.
 ## Requirements
 
 - **Neovim 0.12 or newer** — the configuration is built on `vim.pack`, relies on
-  `vim.lsp.config` auto-discovery and on the treesitter support bundled with
-  Neovim; the setup scripts warn when the version is older.
+  `vim.lsp.config` auto-discovery and uses the `main` branch of nvim-treesitter;
+  the setup scripts warn when the version is older.
 - **Git** — `vim.pack` clones plugins into `stdpath("data")` on first start.
+- **Build tools** — a C compiler and `cmake` (telescope-fzf-native), `cargo`
+  (blink.cmp's fuzzy matcher), `node` and `npm` (markdown-preview and most mason
+  packages), the `tree-sitter` CLI (parser compilation; on Windows that means
+  MSVC's `cl.exe` in `PATH`), `python3` and `gzip` or `7z` (mason packages).
+  `rg` and `fd` keep telescope's grep and file pickers fast; `tokei` enables
+  `:VellumTokei`. `:checkhealth core` reports what is missing.
 - Optional: a Nerd Font (`JetBrainsMono Nerd Font Mono` is the configured GUI
   font), [Neovide](https://neovide.dev), and `pwsh` — on Windows Neovim uses
   it as `shell`.
@@ -137,17 +143,36 @@ Inside `.config/nvim/`:
   mason-lspconfig sections, completion, formatting and the extra sections.
 - `lua/core/vscode.lua` is loaded only when Neovim runs inside vscode-neovim.
 
-The plugin set covers LSP and tooling (mason, none-ls, lspsaga), completion
-(blink.cmp with friendly-snippets), navigation (nvim-tree, telescope, hop),
-editing (autopairs, surround, indent-blankline, grug-far), git (gitsigns,
-neogit) and appearance (tokyonight, lualine, dashboard, which-key). Syntax
-highlighting comes from the treesitter support built into Neovim 0.12, so no
-treesitter plugin is installed, and the terminal is Neovim's built-in one
+The plugin set covers LSP and tooling (mason, mason-lspconfig, nvim-lspconfig,
+none-ls, lspsaga, trouble, fidget), completion (blink.cmp with blink.lib and
+friendly-snippets), navigation (nvim-tree, telescope with fzf-native, hop),
+editing (autopairs, surround, indent-blankline, grug-far, better-escape),
+folding (nvim-ufo), git (gitsigns, neogit) and appearance (lualine, dashboard,
+which-key, scrollview, colorful-winsep, transparent, colorizer, todo-comments,
+markdown-preview). Eight colorschemes ship with it — tokyonight, kanagawa,
+nightfox, gruvbox, everforest, cyberdream, monet and vague — and `<C-k><C-t>`
+opens a picker that previews them live; the choice is remembered across
+sessions.
+
+Syntax highlighting comes from the `main` branch of nvim-treesitter: the
+parsers in `ensure_installed` (C, C#, C++, CSS, Dockerfile, fish, Go, HTML,
+INI, JavaScript/TypeScript, JSON, LaTeX, Lua, Markdown, Python, query, Rust,
+TOML, Typst, TSX, Vim, Vimdoc and YAML) are installed on first start, the
+highlighter and its `indentexpr` attach per filetype, and rainbow-delimiters
+colors the bracket pairs. Language-specific plugins — flutter-tools,
+rustaceanvim and typst-preview — switch on with the `enabled` flag of the
+matching `Vellum.lsp` entry. The terminal is Neovim's built-in one
 (`lua/core/terminal.lua`).
+
+The enabled LSP servers are lua-language-server and pyright, with StyLua and
+ruff as their formatters — mason installs all four on first start. The other
+entries in `lua/lsp/lsp.lua` (clangd, gopls, the HTML/CSS/JSON and TypeScript
+servers, texlab, tinymist and more) stay off until their section gets
+`enabled = true`.
 
 Buffer switching is telescope's `buffers` picker: `bufferline.nvim` has had no
 release since January 2025, so `<leader>bi` opens that picker, which selects a
-buffer with `<CR>`, opens it in a split with `<C-s>`/`<C-v>`, and deletes the
+buffer with `<CR>`, opens it in a split with `<M-s>`/`<M-v>`, and deletes the
 selected one with `<M-d>`.
 
 ### Plugin management
@@ -177,6 +202,7 @@ such as `:map`.
 | --- | --- |
 | `<leader>uf` | Toggle the file tree (VS Code: the sidebar) |
 | `<leader>uw` | Toggle line wrap |
+| `<C-k><C-t>` | Colorscheme picker (live preview) |
 | `<leader>st` | Toggle the terminal (float) |
 | `<leader>sv` / `<leader>sh` | Vertical / horizontal terminal |
 | `<leader>sd` | Toggle a `dsh-tui --resume` session |
@@ -192,7 +218,7 @@ such as `:map`.
 | `<leader>lh` | Hover documentation |
 | `<leader>lR` | Find references |
 | `<leader>ln` / `<leader>lp` | Next / previous diagnostic |
-| `<leader>le` / `<leader>lE` | Next error |
+| `<leader>le` / `<leader>lE` | Next / previous error |
 | `<leader>lP` / `<leader>lt` | Line diagnostics / trouble panel |
 | `<leader>gn` / `<leader>gp` | Next / previous git hunk |
 | `<leader>gP` / `<leader>gs` | Preview / stage git hunk |
