@@ -13,7 +13,7 @@ if not vim.uv.fs_stat(clip_path) then
     clip_path = vim.fs.joinpath(root, "Windows/System32/clip.exe")
 end
 
-if (utils.is_windows or utils.is_wsl) and not utils.is_vscode then
+if utils.is_wsl then
     vim.api.nvim_create_autocmd("TextYankPost", {
         callback = function()
             if vim.v.event.operator == "y" then
@@ -21,8 +21,8 @@ if (utils.is_windows or utils.is_wsl) and not utils.is_vscode then
             end
         end,
     })
-else
-    vim.cmd("set clipboard+=unnamedplus")
+elseif not utils.is_vscode then
+    vim.opt.clipboard = "unnamedplus"
 end
 
 local ime_autogroup = vim.api.nvim_create_augroup("ImeAutoGroup", { clear = true })

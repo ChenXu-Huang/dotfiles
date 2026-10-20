@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `.config/nvim/lua/core/miscellaneous.lua`: native Windows now uses
+  `clipboard=unnamedplus` like the other platforms; only WSL keeps the
+  `clip.exe` `TextYankPost` autocmd.
+
 ## [0.4.1] - 2026-10-19
 
 ### Added
