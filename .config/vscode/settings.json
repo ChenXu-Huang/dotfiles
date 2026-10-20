@@ -1,0 +1,136 @@
+{
+    // general config
+    "editor.wordWrap": "on",
+    "editor.unicodeHighlight.allowedLocales": {
+        "zh-hans": true
+    },
+    "files.eol": "\n",
+    "notebook.lineNumbers": "on",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.tree.indent": 10,
+    "workbench.tree.renderIndentGuides": "always",
+    "workbench.colorCustomizations": {
+        "tree.indentGuidesStroke": "#006eff"
+    },
+    "update.showReleaseNotes": false,
+    "explorer.confirmDelete": false,
+    "explorer.confirmPasteNative": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.ts": "${capture}.js",
+        "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
+        "*.jsx": "${capture}.js",
+        "*.tsx": "${capture}.ts",
+        "tsconfig.json": "tsconfig.*.json",
+        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
+        "*.sqlite": "${capture}.${extname}-*",
+        "*.db": "${capture}.${extname}-*",
+        "*.sqlite3": "${capture}.${extname}-*",
+        "*.db3": "${capture}.${extname}-*",
+        "*.sdb": "${capture}.${extname}-*",
+        "*.s3db": "${capture}.${extname}-*"
+    },
+    "window.confirmSaveUntitledWorkspace": false,
+    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono",
+    "git.confirmSync": false,
+    "git.openRepositoryInParentFolders": "never",
+    "http.proxyAuthorization": null,
+    "http.proxy": "http://127.0.0.1:10808",
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "code-runner.executorMap": {
+        "markdown": "cd $dir && pandoc $fileName -o output/$fileNameWithoutExt.pdf --defaults=md2pdf",
+        "python": "cd $dir && uv run $fileName"
+    },
+    // agents config
+    "chat.disableAIFeatures": true,
+    "claudeCode.useTerminal": true,
+    "dsh-tui-vscode.terminalLocation": "panel",
+    // python config
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.pytestParameters": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python-envs.terminal.autoActivationType": "off",
+    "ruff.lint.ignore": [
+        "E402",
+        "F401"
+    ],
+    "ruff.lineLength": 100,
+    "jupyter.askForKernelRestart": false,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    // java config
+    "java.gradle.buildServer.enabled": "off",
+    "redhat.telemetry.enabled": true,
+    // sqlite config
+    "sqlite3-editor.ui.minimizePanel": true,
+    "sqlite3-editor.ui.movePanelIfSpaceAllows": "right",
+    // latex config
+    "latex-workshop.hover.preview.mathjax.extensions": [
+        "boldsymbol"
+    ],
+    "latex-workshop.intellisense.package.enabled": true,
+    "latex-workshop.latex.outDir": "./output",
+    "latex-workshop.latex.recipe.default": "lastUsed",
+    "latex-workshop.mathpreviewpanel.cursor.enabled": true,
+    "latex-workshop.message.error.show": false,
+    "latex-workshop.message.warning.show": false,
+    "latex-workshop.view.pdf.invert": 0.88,
+    "latex-workshop.view.pdf.invertMode.enabled": "auto",
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk-xelatex",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-pdfxe",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "latexmk-pdflatex",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-pdf",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ]
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "XeLaTeX (AutoMake)",
+            "tools": [
+                "latexmk-xelatex"
+            ]
+        },
+        {
+            "name": "PdfLaTeX (AutoMake)",
+            "tools": [
+                "latexmk-pdflatex"
+            ]
+        }
+    ],
+    "latex-workshop.latex.clean.subfolder.enabled": true,
+    "latex-workshop.latex.autoClean.run": "onSucceeded",
+    "latex-workshop.latex.autoBuild.run": "never",
+    "latex-workshop.view.pdf.internal.synctex.keybinding": "double-click",
+    "latex-workshop.formatting.latex": "latexindent",
+    "[latex]": {
+        "editor.defaultFormatter": "mathematic.vscode-latex"
+    },
+    // notes config
+    "foam.templates.folder": "templates"
+}

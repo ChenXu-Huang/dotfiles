@@ -5,9 +5,10 @@ This document describes the structure and design of this dotfiles repository.
 ## Overview
 
 This repository manages personal development-environment configuration as code.
-The current scope is a [Neovim](https://neovim.io/) configuration, a Windows
-PowerShell 7 profile and the macOS zsh startup files, plus cross-platform setup
-scripts that link them into place.
+The current scope is a [Neovim](https://neovim.io/) configuration, the VS Code
+user settings, a pandoc user data directory, a Windows PowerShell 7 profile and
+the macOS zsh startup files, plus cross-platform setup scripts that link them
+into place.
 
 ## Repository Layout
 
@@ -17,6 +18,8 @@ scripts that link them into place.
 │   ├── zsh/                  zsh startup files (linked into $HOME on macOS)
 │   │   ├── .zprofile           Homebrew environment, read by login shells
 │   │   └── .zshrc              oh-my-zsh, nvm, rustup, aliases and functions
+│   ├── vscode/               VS Code user settings (linked into Code/User)
+│   ├── pandoc/               pandoc user data directory (linked over the data dir)
 │   └── nvim/                 Neovim configuration (linked to the Neovim config path)
 │       ├── init.lua          Entry point: plugin table, core modules, plugin loader
 │       ├── lsp/              LSP wiring, one module per concern
@@ -266,14 +269,17 @@ from `vim.g.vscode` alone.
 ## Setup Scripts
 
 The setup scripts make the in-repo configuration visible where the tools read
-it — Neovim's config path, PowerShell's per-user configuration directory (on
-Windows), the skill directories of the agent CLIs and, on macOS, the zsh
-startup files — so everything is edited in one place and tracked in Git:
+it — Neovim's config path, the VS Code user settings directory, pandoc's user
+data directory, PowerShell's per-user configuration directory (on Windows), the
+skill directories of the agent CLIs and, on macOS, the zsh startup files — so
+everything is edited in one place and tracked in Git:
 
 - **Windows (PowerShell)** — `scripts/setup.ps1` walks one table of
-  source/target pairs through a shared `New-ConfigLink` helper: a *junction*
-  from `%LOCALAPPDATA%\nvim` to the repo's `.config/nvim/` folder, and *hard
-  links* for the PowerShell 7 profile (`Microsoft.PowerShell_profile.ps1` and
+  source/target pairs through a shared `New-ConfigLink` helper: *junctions*
+  from `%LOCALAPPDATA%\nvim` to the repo's `.config/nvim/` folder and from
+  `%APPDATA%\pandoc` to `.config/pandoc/`, and *hard links* for the VS Code
+  `settings.json` and `keybindings.json` in `%APPDATA%\Code\User` and for the
+  PowerShell 7 profile (`Microsoft.PowerShell_profile.ps1` and
   `powershell.config.json`) in `Documents\PowerShell`. Junctions and hard links
   need no Administrator privileges; where a hard link is impossible (the
   repository sits on another volume) the helper falls back to a symbolic link,
@@ -287,7 +293,11 @@ startup files — so everything is edited in one place and tracked in Git:
 - **macOS / Linux (POSIX sh)** — `scripts/setup.sh` calls the same kind of
   `link_config` helper once per pair: a *symbolic link* from
   `${XDG_CONFIG_HOME:-~/.config}/nvim` to the repo's `.config/nvim/` folder,
-  one for each skills location (`~/.agents/skills`, `~/.claude/skills`),
+  one per VS Code settings file (into `Code/User` under
+  `~/Library/Application Support` on macOS, under
+  `${XDG_CONFIG_HOME:-~/.config}` on Linux), one from
+  `${XDG_DATA_HOME:-~/.local/share}/pandoc` to `.config/pandoc/`, one for each
+  skills location (`~/.agents/skills`, `~/.claude/skills`),
   creating a missing target directory first, and — on macOS only — one for each
   zsh startup file (`.config/zsh/.zshrc` and `.zprofile`, linked into
   `${ZDOTDIR:-$HOME}`; see [Zsh Configuration](#zsh-configuration)). macOS is
@@ -391,6 +401,32 @@ The split follows when zsh sources each file:
 `core/shell.lua` fetches the environment with `$SHELL -lic`, so a Neovim started
 from Finder/Dock sees what an interactive login shell produces, nvm's `node`
 included.
+
+## VS Code Configuration
+
+`.config/vscode/` holds the VS Code user settings (`settings.json` and
+`keybindings.json`, JSONC). VS Code settings have no per-platform syntax, so
+the shared file stays platform-neutral: the PDF preview is the built-in tab
+viewer on every platform, and anything machine-specific resolves through the
+platform's own mechanisms — pandoc's user data directory, the TeX tree,
+`PATH` — instead of paths written into the settings. The setup scripts link
+both files into the user directory (`%APPDATA%\Code\User` on Windows,
+`~/Library/Application Support/Code/User` on macOS,
+`${XDG_CONFIG_HOME:-~/.config}/Code/User` on Linux).
+
+## Pandoc Configuration
+
+`.config/pandoc/` is managed as pandoc's user data directory: the setup scripts
+link it over `%APPDATA%\pandoc` (a junction on Windows) or
+`${XDG_DATA_HOME:-~/.local/share}/pandoc` (a symbolic link on macOS and Linux).
+`defaults/md2pdf.yaml` packages the markdown-to-PDF options (xelatex, the
+eisvogel template from `templates/`, the `convert.lua` filter through `${.}`),
+so the code-runner recipe is only `pandoc <file> --defaults=md2pdf`; the
+`chinese_fonts.sty` it loads comes from the TeX tree (registered as a custom
+MiKTeX root on Windows), not from the data directory. `convert.lua` resolves
+Obsidian-style `![[image|width]]` embeds against the `PANDOC_RESOURCES_DIR`
+environment variable, falling back to a `resources/` folder next to the
+script's parent directory.
 
 ## Conventions
 

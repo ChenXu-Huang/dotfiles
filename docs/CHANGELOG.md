@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `.config/vscode/`: the VS Code user settings (`settings.json` and
+  `keybindings.json`) are tracked in the repository; the setup scripts link
+  them into the platform's user directory — `%APPDATA%\Code\User` on Windows
+  (hard link, with a symbolic-link fallback), `~/Library/Application
+  Support/Code/User` on macOS and `${XDG_CONFIG_HOME:-~/.config}/Code/User` on
+  Linux. The settings stay platform-neutral: the PDF preview is the built-in
+  tab viewer everywhere, and the markdown recipe resolves pandoc's pieces
+  through pandoc's own data directory.
+- `.config/pandoc/`: pandoc's user data directory is tracked in the repository
+  and linked over the platform's location (`%APPDATA%\pandoc` as a junction on
+  Windows, `${XDG_DATA_HOME:-~/.local/share}/pandoc` on macOS/Linux). It
+  carries the eisvogel templates and the `md2pdf` defaults file with its
+  `convert.lua` filter, so the code-runner markdown recipe is just
+  `pandoc <file> --defaults=md2pdf` with no workspace-relative or
+  machine-specific paths; the filter resolves images against the
+  `PANDOC_RESOURCES_DIR` environment variable.
+
 ### Changed
 
 - `.config/nvim/lua/core/miscellaneous.lua`: native Windows now uses

@@ -1,7 +1,7 @@
 #!/bin/sh
 # Link this repository's configuration into its locations in $HOME: the Neovim
-# configuration, the skills for the agent CLIs, and the zsh startup files on
-# macOS.
+# configuration, the VS Code user settings, the pandoc user data directory,
+# the skills for the agent CLIs, and the zsh startup files on macOS.
 # Primary target: macOS (Darwin); Linux works identically via XDG paths.
 set -eu
 
@@ -13,6 +13,9 @@ Usage: setup.sh [-f|--force] [-h|--help]
 
 Links the repository's configuration into place:
   .config/nvim    -> ${XDG_CONFIG_HOME:-~/.config}/nvim
+  .config/vscode  -> Code/User under ~/Library/Application Support (macOS)
+                     or ${XDG_CONFIG_HOME:-~/.config} (Linux)
+  .config/pandoc  -> ${XDG_DATA_HOME:-~/.local/share}/pandoc
   .agents/skills  -> ~/.agents/skills
   .agents/skills  -> ~/.claude/skills
   .config/zsh     -> ${ZDOTDIR:-~}/.zshrc and .zprofile (macOS)
@@ -146,9 +149,18 @@ ROOT_DIR=$(CDPATH= cd "$(dirname "$0")/.." && pwd)
 CONFIG_HOME=${XDG_CONFIG_HOME:-"$HOME/.config"}
 ZDOT_DIR=${ZDOTDIR:-"$HOME"}
 
+if [ "$PLATFORM" = macOS ]; then
+    VSCODE_USER_DIR="$HOME/Library/Application Support/Code/User"
+else
+    VSCODE_USER_DIR="$CONFIG_HOME/Code/User"
+fi
+
 FAILED=0
 
 link_config "$ROOT_DIR/.config/nvim" "$CONFIG_HOME/nvim" || FAILED=1
+link_config "$ROOT_DIR/.config/vscode/settings.json" "$VSCODE_USER_DIR/settings.json" || FAILED=1
+link_config "$ROOT_DIR/.config/vscode/keybindings.json" "$VSCODE_USER_DIR/keybindings.json" || FAILED=1
+link_config "$ROOT_DIR/.config/pandoc" "${XDG_DATA_HOME:-$HOME/.local/share}/pandoc" || FAILED=1
 link_config "$ROOT_DIR/.agents/skills" "$HOME/.agents/skills" || FAILED=1
 link_config "$ROOT_DIR/.agents/skills" "$HOME/.claude/skills" || FAILED=1
 

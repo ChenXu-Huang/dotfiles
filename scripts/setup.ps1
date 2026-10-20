@@ -1,7 +1,8 @@
-# Link this repository's configuration into its Windows locations: a junction
-# at %LOCALAPPDATA%\nvim for Neovim, file links for the PowerShell 7 profile in
-# Documents\PowerShell, and junctions for the skills in %USERPROFILE% (no
-# Administrator rights needed).
+# Link this repository's configuration into its Windows locations: junctions
+# at %LOCALAPPDATA%\nvim for Neovim and %APPDATA%\pandoc for pandoc, file links
+# for the PowerShell 7 profile in Documents\PowerShell, file links for the VS
+# Code user settings in %APPDATA%\Code\User, and junctions for the skills in
+# %USERPROFILE% (no Administrator rights needed).
 [CmdletBinding()]
 param(
     # Replace an existing target: a foreign link is removed, a real file or
@@ -144,6 +145,21 @@ $Links = @(
         Source   = Join-Path $RootDir '.config/powershell/powershell.config.json'
         Target   = Join-Path $PowerShellDir 'powershell.config.json'
         LinkType = @('HardLink', 'SymbolicLink')
+    }
+    @{
+        Source   = Join-Path $RootDir '.config/vscode/settings.json'
+        Target   = Join-Path $env:APPDATA 'Code/User/settings.json'
+        LinkType = @('HardLink', 'SymbolicLink')
+    }
+    @{
+        Source   = Join-Path $RootDir '.config/vscode/keybindings.json'
+        Target   = Join-Path $env:APPDATA 'Code/User/keybindings.json'
+        LinkType = @('HardLink', 'SymbolicLink')
+    }
+    @{
+        Source   = Join-Path $RootDir '.config/pandoc'
+        Target   = Join-Path $env:APPDATA 'pandoc'
+        LinkType = @('Junction')
     }
     @{
         Source   = Join-Path $RootDir '.agents/skills'

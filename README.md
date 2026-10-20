@@ -1,10 +1,10 @@
 # dotfiles
 
 Personal development-environment configuration as code: a
-[Neovim](https://neovim.io/) configuration, a Windows PowerShell 7 profile and
-the skill definitions for the agent CLIs, plus cross-platform setup scripts
-that link them into place, so everything is edited in one repository and
-tracked in Git.
+[Neovim](https://neovim.io/) configuration, the VS Code user settings, a pandoc
+user data directory, a Windows PowerShell 7 profile and the skill definitions
+for the agent CLIs, plus cross-platform setup scripts that link them into
+place, so everything is edited in one repository and tracked in Git.
 
 ## Requirements
 
@@ -33,10 +33,11 @@ tracked in Git.
 
 ## Installation
 
-The setup scripts link `.config/nvim` to Neovim's config location, the zsh
-startup files to `~/.zshrc` and `~/.zprofile` (macOS) and, on Windows, the
-PowerShell 7 profile to the directory `pwsh` reads it from, checking the
-environment first. They are safe to re-run.
+The setup scripts link `.config/nvim` to Neovim's config location,
+`.config/vscode` to VS Code's user directory, `.config/pandoc` to pandoc's user
+data directory, the zsh startup files to `~/.zshrc` and `~/.zprofile` (macOS)
+and, on Windows, the PowerShell 7 profile to the directory `pwsh` reads it
+from, checking the environment first. They are safe to re-run.
 
 ```sh
 git clone https://github.com/ChenXu-Huang/dotfiles.git
@@ -55,9 +56,13 @@ Each script links the repository's sources into that platform's locations:
 | Platform | Link created |
 | --- | --- |
 | macOS / Linux | `${XDG_CONFIG_HOME:-~/.config}/nvim`, a symbolic link |
+| macOS / Linux | VS Code's `Code/User` (under `~/Library/Application Support` on macOS, `${XDG_CONFIG_HOME:-~/.config}` on Linux): `settings.json` and `keybindings.json` |
+| macOS / Linux | `${XDG_DATA_HOME:-~/.local/share}/pandoc`, a symbolic link |
 | macOS | `${ZDOTDIR:-~}/.zshrc` and `${ZDOTDIR:-~}/.zprofile`, symbolic links |
 | macOS / Linux | `~/.agents/skills` and `~/.claude/skills`, symbolic links |
 | Windows | `%LOCALAPPDATA%\nvim`, a junction (no Administrator rights) |
+| Windows | `%APPDATA%\Code\User`: VS Code `settings.json` and `keybindings.json` |
+| Windows | `%APPDATA%\pandoc`, a junction |
 | Windows | `Documents\PowerShell`: profile and `powershell.config.json` |
 | Windows | `%USERPROFILE%\.agents\skills` and `.claude\skills`, junctions |
 

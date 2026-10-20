@@ -1,0 +1,28 @@
+from: markdown
+to: pdf
+pdf-engine: xelatex
+standalone: true
+table-of-contents: false
+number-sections: true
+highlight-style: tango
+syntax-highlighting: idiomatic
+citeproc: true
+listings: true
+template: eisvogel
+filters:
+  - ${.}/convert.lua
+
+metadata:
+  papersize: a4
+
+variables:
+  geometry:
+    - scale=0.8
+  colorlinks: true
+  inlinecode-background: false
+  header-includes: |
+    \usepackage{seqsplit}
+    \let\oldtexttt\texttt
+    \renewcommand{\texttt}[1]{\oldtexttt{\seqsplit{#1}}}
+    \usepackage{chinese_fonts}
+    \chinesefonts{}
