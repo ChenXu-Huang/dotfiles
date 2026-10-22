@@ -34,6 +34,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `.agents/skills/commit`: the whole workflow now runs in one subagent — the
+  main agent only parses the user's intent and requested commit count, spawns
+  the subagent and relays its report, and never inspects diffs, edits, stages
+  or commits itself. The subagent reads the working tree (staged, unstaged
+  and untracked changes), plans atomic commits on its own when neither intent
+  nor count was stated — a stated intent or count is authoritative, and only
+  an irreconcilable conflict with the actual changes escalates back — and
+  loops per commit: it writes the changelog and architecture entries that
+  commit requires, stages the files by name (`git add .`, `-A` and `-u` are
+  forbidden) and commits without a confirmation gate. The changelog is now
+  strictly append-only — an existing entry that looks unsupported by the diff
+  is flagged in the report instead of being removed or asked about — and the
+  subagent ends with a report of the commits created, what was left in the
+  working tree and anything flagged. `AGENTS.md` describes the per-commit doc
+  pass accordingly.
 - `.config/zsh/.zshrc` and
   `.config/powershell/Microsoft.PowerShell_profile.ps1`: the `vim` shortcut now
   starts `nvim --noplugin`, a plugin-free Neovim for quick edits; on

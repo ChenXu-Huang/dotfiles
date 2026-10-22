@@ -31,8 +31,9 @@ the same pass as the changelog (see [Documentation](#documentation)).
   [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 **Both files are written when the commit is prepared, not after a change is
-made.** The `commit` skill owns that pass: it reads the staged diff and adds the
-entries it requires, so the documentation lands in the commit it describes.
+made.** The `commit` skill owns that pass: it splits the working tree into
+atomic commits and, immediately before each one, writes the entries that
+commit's diff requires, so the documentation lands in the commit it describes.
 While doing the work itself, leave these two files alone — do not append a
 changelog entry or an architecture note as a postscript to a change, and do not
 edit them "for later".
