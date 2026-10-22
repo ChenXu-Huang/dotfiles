@@ -29,9 +29,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   key as Meta (`neovide_input_macos_option_key_is_meta = "only_left"`), so the
   `<M-...>` mappings — telescope's split/delete keys and the terminal toggle —
   work there; the right Option key still types special characters.
+- `.config/nvim/lua/plugins/config.lua`: better-escape.nvim now also leaves
+  terminal mode on `jj` (`<C-\><C-n>`), in addition to insert mode.
 
 ### Changed
 
+- `.config/zsh/.zshrc` and
+  `.config/powershell/Microsoft.PowerShell_profile.ps1`: the `vim` shortcut now
+  starts `nvim --noplugin`, a plugin-free Neovim for quick edits; on
+  PowerShell it becomes a function, because `Set-Alias` cannot carry
+  arguments.
 - `.config/nvim/lua/core/miscellaneous.lua`: native Windows now uses
   `clipboard=unnamedplus` like the other platforms; only WSL keeps the
   `clip.exe` `TextYankPost` autocmd.

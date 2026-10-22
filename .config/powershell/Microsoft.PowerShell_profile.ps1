@@ -28,7 +28,7 @@ Import-Module PSFzf
 Set-PSFzfOption -PSReadlineChordProvider 'Ctrl+f' -PSReadlineChordReverseHistory 'Ctrl+r'
 
 # Alias
-Set-Alias -Name vim -Value nvim
+function vim { nvim --noplugin @args }
 Set-Alias g git
 function grep { $input | findstr $args }
 function which { Get-Command @args -ErrorAction SilentlyContinue | % Source }

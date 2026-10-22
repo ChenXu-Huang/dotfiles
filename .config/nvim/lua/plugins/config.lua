@@ -776,7 +776,10 @@ config["better-escape"] = {
     main = "better_escape",
     opts = {
         default_mappings = false,
-        mappings = { i = { j = { j = "<Esc>" } } },
+        mappings = {
+            i = { j = { j = "<Esc>" } },
+            t = { j = { j = [[<C-\><C-n>]] } }
+        },
     },
 }
 

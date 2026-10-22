@@ -26,7 +26,7 @@ export PATH="$_brew_prefix/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
 unset _brew_prefix
 
 # Aliases
-alias vim=nvim
+alias vim="nvim --noplugin"
 alias buu="brew update && brew upgrade && brew cleanup"
 
 function y() {
