@@ -3,6 +3,7 @@
 
 # repo
 temp/
+*.log
 
 # os
 .DS_Store

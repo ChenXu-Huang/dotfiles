@@ -33,6 +33,7 @@ config.dashboard = {
     opts = {
         theme = "doom",
         config = {
+            vertical_center = true,
             header = {
                 " ",
                 "██╗   ██╗███████╗██╗     ██╗     ██╗   ██║███╗   ███╗",
@@ -47,22 +48,22 @@ config.dashboard = {
             },
             center = {
                 {
-                    icon = "  ",
+                    icon = " ",
                     desc = "Vellum Plugin Profile",
                     action = "VellumProfile",
                 },
                 {
-                    icon = "  ",
+                    icon = " ",
                     desc = "Edit plugin registry",
                     action = string.format("edit %s/lua/plugins/config.lua", config_root),
                 },
                 {
-                    icon = "  ",
+                    icon = " ",
                     desc = "Mason",
                     action = "execute 'doautocmd User Dashboard-Mason' | Mason",
                 },
                 {
-                    icon = "  ",
+                    icon = " ",
                     desc = "About Vellum",
                     action = "VellumAbout",
                 },

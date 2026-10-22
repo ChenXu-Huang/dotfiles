@@ -25,12 +25,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `pandoc <file> --defaults=md2pdf` with no workspace-relative or
   machine-specific paths; the filter resolves images against the
   `PANDOC_RESOURCES_DIR` environment variable.
+- `.config/nvim/lua/core/basic.lua`: on macOS, Neovide treats the left Option
+  key as Meta (`neovide_input_macos_option_key_is_meta = "only_left"`), so the
+  `<M-...>` mappings — telescope's split/delete keys and the terminal toggle —
+  work there; the right Option key still types special characters.
 
 ### Changed
 
 - `.config/nvim/lua/core/miscellaneous.lua`: native Windows now uses
   `clipboard=unnamedplus` like the other platforms; only WSL keeps the
   `clip.exe` `TextYankPost` autocmd.
+- `.config/nvim/lua/plugins/config.lua`: the dashboard layout centers
+  vertically (`vertical_center = true`), and its four center entries carry
+  Nerd Font icons instead of blank placeholders.
 
 ## [0.4.1] - 2026-10-19
 

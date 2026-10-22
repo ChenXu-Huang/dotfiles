@@ -114,4 +114,5 @@ if vim.g.neovide then
     vim.g.neovide_refresh_rate = 144
     vim.g.neovide_refresh_rate_idle = 5
     vim.g.neovide_remenber_window_size = true
+    vim.g.neovide_input_macos_option_key_is_meta = "only_left"
 end
