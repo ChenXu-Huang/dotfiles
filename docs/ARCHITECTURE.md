@@ -22,14 +22,7 @@ into place.
 │   ├── pandoc/               pandoc user data directory (linked over the data dir)
 │   └── nvim/                 Neovim configuration (linked to the Neovim config path)
 │       ├── init.lua          Entry point: plugin table, core modules, plugin loader
-│       ├── lsp/              LSP wiring, one module per concern
-│       │   ├── init.lua        Requires the modules below
-│       │   ├── lsp.lua         `Vellum.lsp`: per-server settings
-│       │   ├── plugins.lua     mason, mason-lspconfig and server enablement
-│       │   ├── completion.lua  blink.cmp section
-│       │   ├── format.lua      none-ls section
-│       │   └── extra.lua       lspsaga and trouble sections
-│       ├── nvim-pack-lock.json  Plugin lockfile written by vim.pack (tracked)
+│       ├── nvim-pack-lock.json  Plugin lockfile written by vim.pack (git-ignored)
 │       └── lua/
 │           ├── core/         Editor behavior, loaded eagerly in list order
 │           │   ├── basic.lua        Options (indentation, search, shell...)
@@ -43,6 +36,13 @@ into place.
 │           │   ├── terminal.lua     Built-in terminal and `:VellumTerm`
 │           │   ├── utils.lua        Platform checks, mapping and float helpers
 │           │   └── vscode.lua       VS Code specifics, loaded only under vscode-neovim
+│           ├── lsp/          LSP wiring, one module per concern
+│           │   ├── init.lua        Requires the modules below
+│           │   ├── lsp.lua         `Vellum.lsp`: per-server settings
+│           │   ├── plugins.lua     mason, mason-lspconfig and the language plugins
+│           │   ├── completion.lua  blink.cmp section
+│           │   ├── format.lua      none-ls section
+│           │   └── extra.lua       lspsaga and trouble sections
 │           └── plugins/
 │               ├── config.lua     Central plugin table (single source for plugins)
 │               ├── pack.lua       vim.pack specs, lazy loading and the VeryLazy event
@@ -61,7 +61,7 @@ into place.
 ├── README.md             Entry point: requirements, installation, mappings
 ├── .editorconfig         Editor style: LF, UTF-8, 4-space indentation
 ├── .gitattributes        Enforces LF checkout so POSIX scripts work everywhere
-├── .gitignore            Ignores temp/ and OS metadata files
+├── .gitignore            Ignores *-lock.json, temp/ and OS metadata files
 └── AGENTS.md             Instructions for AI coding agents
 ```
 
@@ -104,9 +104,9 @@ its `require` to `core/init.lua`.
 
 Plugins are installed and updated by `vim.pack` (Neovim 0.12+): sources land in
 `stdpath("data")/site/pack/core/opt`, the lockfile is
-`nvim-pack-lock.json` next to `init.lua` and is tracked in Git, updates run
-through `:VellumUpdate` (or `vim.pack.update()`), and `:VellumProfile` lists
-every section with its state.
+`nvim-pack-lock.json` next to `init.lua` and is git-ignored, so every machine
+pins its own plugin revisions, updates run through `:VellumUpdate` (or
+`vim.pack.update()`), and `:VellumProfile` lists every section with its state.
 
 `plugins/config.lua` is the single source of truth: keyed by a logical name
 that is also the name used by dependencies and by `:VellumProfile`, each
@@ -166,37 +166,51 @@ provides the environment, and a blocking fetch would only delay the extension.
   `Vellum.lsp` table, keyed by the lspconfig server name; the `formatter`,
   `setup` and `managed_by_plugin` fields are what the rest of the LSP wiring
   reads.
-- `lua/lsp/plugins.lua` adds the mason, mason-lspconfig and editor-plugin
-  sections to `Vellum.plugins`, enables the installed servers and holds the
-  global diagnostic appearance (`vim.diagnostic.config`). The `blink` section
-  registers blink.cmp's LSP capabilities through `vim.lsp.config("*")` when it
-  is set up, so servers started later advertise them. `lua/lsp/format.lua`
-  builds the none-ls sources from each server's `formatter` field, so
-  `<leader>lf` formats through that one source.
-- mason-lspconfig auto-enables every server installed by Mason; the packages
-  themselves are kept installed through the `mason-tool-installer` section of
-  the central plugin table.
+- `lua/lsp/plugins.lua` adds the mason section and the language-plugin
+  sections (flutter-tools, rustaceanvim and typst-preview, each gated on the
+  `enabled` flag of its `Vellum.lsp` entry) to `Vellum.plugins`, and holds the
+  global diagnostic appearance (`vim.diagnostic.config`). The mason setup
+  installs every `enabled` server together with its `formatter` packages on
+  first start, merges blink.cmp's LSP capabilities into each server's
+  `vim.lsp.config()` call and enables the matching servers per filetype.
+  `lua/lsp/format.lua` builds the none-ls sources from each server's
+  `formatter` field, so `<leader>lf` formats through that one source.
 
 ### Plugin Set
 
 | Section | Plugin | Purpose |
 | --- | --- | --- |
 | `autopairs` | windwp/nvim-autopairs | Automatic bracket/quote pairing |
-| `better-escape` | max397574/better-escape.nvim | Leaves insert mode on `jj` without the `timeoutlen` delay |
-| `blink` | saghen/blink.cmp | Completion engine (with friendly-snippets) |
+| `better-escape` | max397574/better-escape.nvim | Leaves insert mode and terminal mode on `jj` without the `timeoutlen` delay |
+| `blink` | saghen/blink.cmp | Completion engine (with friendly-snippets and blink.lib) |
+| `colorizer` | NvChad/nvim-colorizer.lua | Inline color previews |
+| `dashboard` | nvimdev/dashboard-nvim | Start screen |
+| `fidget` | j-hui/fidget.nvim | LSP progress notifications |
+| `flutter-tools` | nvim-flutter/flutter-tools.nvim | Flutter/Dart tooling, gated on `Vellum.lsp.flutter.enabled` |
 | `gitsigns` | lewis6991/gitsigns.nvim | Git hunk signs in the signcolumn with `<leader>gn`/`<leader>gp` navigation and `<leader>gs`/`<leader>gr` staging |
 | `grug-far` | MagicDuck/grug-far.nvim | Project-wide search and replace |
 | `hop` | smoka7/hop.nvim | Jump-to-anywhere motion |
 | `indent-blankline` | lukas-reineke/indent-blankline.nvim | Indentation guides |
 | `lspsaga` | nvimdev/lspsaga.nvim | LSP UI enhancements |
 | `lualine` | nvim-lualine/lualine.nvim | Statusline |
-| `mason` / `mason-lspconfig` | mason-org/mason.nvim, mason-lspconfig.nvim | LSP server wiring on nvim-lspconfig |
-| `mason-tool-installer` | WhoIsSethDaniel/mason-tool-installer.nvim | Ensures `pyright`, `ruff`, `stylua` and `lua-language-server` (`lua_ls`) are installed |
-| `none-ls` (+ `none-ls-extras`) | nvimtools/none-ls.nvim | Dedicated formatting sources: ruff (Python) and stylua (Lua); `<leader>lf` formats through it |
+| `markdown-preview` | iamcco/markdown-preview.nvim | Browser markdown preview (`<A-b>`) |
+| `mason` / `mason-lspconfig` | mason-org/mason.nvim, mason-lspconfig.nvim | LSP server wiring on nvim-lspconfig; installs the enabled servers and their formatters |
+| `neogit` | NeogitOrg/neogit | Git interface (`<leader>gt`) |
+| `null-ls` (+ `none-ls-extras`) | nvimtools/none-ls.nvim | Dedicated formatting sources: ruff (Python) and stylua (Lua); `<leader>lf` formats through it |
+| `rustaceanvim` | mrcjkb/rustaceanvim | Rust tooling, gated on `Vellum.lsp.rust.enabled` |
+| `scrollview` | dstein64/nvim-scrollview | Scrollbar |
 | `surround` | kylechui/nvim-surround | Surrounding-pair editing |
 | `telescope` | nvim-telescope/telescope.nvim | Fuzzy finder; its `buffers` picker replaced bufferline (selection, preview and `<M-d>` deletion), plus `find_files` and `live_grep` |
-| `tokyonight` | folke/tokyonight.nvim | Colorscheme |
+| `todo-comments` | folke/todo-comments.nvim | TODO highlighting and the `<leader>ut` list |
+| `transparent` | xiyaowong/transparent.nvim | Background transparency |
 | `tree` | nvim-tree/nvim-tree.lua | File explorer |
+| `treesitter` | nvim-treesitter/nvim-treesitter | Syntax highlighting and indentation (the `main` branch), with rainbow-delimiters |
+| `trouble` | folke/trouble.nvim | Diagnostics panel (`<leader>lt`) |
+| `typst-preview` | chomosuke/typst-preview.nvim | Typst preview, gated on `Vellum.lsp.tinymist.enabled` |
+| `ufo` | kevinhwang91/nvim-ufo | Folding with preview |
+| `which-key` | folke/which-key.nvim | Keybinding popup |
+| `winsep` | nvim-zh/colorful-winsep.nvim | Window separators |
+| `tokyonight`, `kanagawa`, `nightfox`, `gruvbox`, `everforest`, `cyberdream`, `monet`, `vague` | eight colorscheme plugins | Colorschemes, loaded lazily; `<C-k><C-t>` previews and switches them |
 
 bufferline was dropped because it stopped receiving releases in January 2025;
 telescope covers the same job and is actively maintained. `<leader>bi` opens the
@@ -229,13 +243,17 @@ arguments.
 
 ### Treesitter
 
-Treesitter support comes from Neovim itself (0.12+): the bundled parsers and
-queries cover C, Lua, Markdown, Vimscript, Vimdoc and query files, and Neovim
-starts the highlighter for any buffer whose language has a parser, so no
-plugin, `FileType` autocommand or folding setup is involved. Parsers for other
-languages live in `parser/` directories on the runtimepath — the ones already
-installed under `stdpath("data")/site` keep working after the treesitter plugin
-was dropped — and are loaded only when a buffer needs them.
+Syntax highlighting comes from the `main` branch of nvim-treesitter: the
+parsers in `ensure_installed` (C, C#, C++, CSS, Dockerfile, fish, Go, HTML,
+INI, JavaScript/TypeScript, JSON, LaTeX, Lua, Markdown, Python, query, Rust,
+TOML, Typst, TSX, Vim, Vimdoc and YAML) are installed on first start, and a
+`FileType` autocommand attaches `vim.treesitter.start()` and the treesitter
+`indentexpr` to every buffer in one of those languages. The shell filetypes
+(sh, bash, zsh, ps1) are left out and keep their builtin syntax, files beyond
+the size limit get neither, and dart gets the highlighting without the
+`indentexpr`. rainbow-delimiters colors the bracket pairs (with strategy and
+query overrides for vim and lua), and the `query` parser is registered for
+scheme files as well.
 
 ### vscode-neovim
 
@@ -433,8 +451,10 @@ script's parent directory.
 - **Editor style** (`.editorconfig`): LF line endings, UTF-8, final newline,
   4-space indentation. `.gitattributes` enforces LF on checkout so
   `scripts/setup.sh` also works from a Windows clone.
-- **Lockfile**: `.config/nvim/nvim-pack-lock.json` is tracked, so every machine
-  installs the same plugin revisions; `vim.pack.update()` moves it forward.
+- **Lockfile**: `.config/nvim/nvim-pack-lock.json` pins the plugin revisions
+  per machine; it is git-ignored (`*-lock.json`), so reproducing an exact
+  plugin set on another machine means copying the file over by hand.
+  `vim.pack.update()` moves it forward.
 - **Temporary files** belong in `temp/` at the repository root (git-ignored).
 - **History** is recorded in [CHANGELOG.md](CHANGELOG.md) following
   [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).

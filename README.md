@@ -17,7 +17,8 @@ place, so everything is edited in one repository and tracked in Git.
   packages), the `tree-sitter` CLI (parser compilation; on Windows that means
   MSVC's `cl.exe` in `PATH`), `python3` and `gzip` or `7z` (mason packages).
   `rg` and `fd` keep telescope's grep and file pickers fast; `tokei` enables
-  `:VellumTokei`. `:checkhealth core` reports what is missing.
+  `:VellumTokei`, and `dsh-tui` backs the `<leader>sd` session.
+  `:checkhealth core` reports what is missing.
 - Optional: a Nerd Font (`JetBrainsMono Nerd Font Mono` is the configured GUI
   font), [Neovide](https://neovide.dev), and `pwsh` — on Windows Neovim uses
   it as `shell`.
@@ -108,10 +109,17 @@ without reading `.zprofile`.
 ```sh
 rm ~/.config/nvim ~/.agents/skills ~/.claude/skills
 rm ~/.zshrc ~/.zprofile
+rm "${XDG_DATA_HOME:-$HOME/.local/share}/pandoc"
+# VS Code user settings, linked as files:
+#   macOS: ~/Library/Application Support/Code/User/{settings.json,keybindings.json}
+#   Linux: ${XDG_CONFIG_HOME:-~/.config}/Code/User/{settings.json,keybindings.json}
 ```
 
 ```powershell
 Remove-Item "$env:LOCALAPPDATA\nvim" -Force
+Remove-Item "$env:APPDATA\pandoc" -Force
+Remove-Item "$env:APPDATA\Code\User\settings.json" -Force
+Remove-Item "$env:APPDATA\Code\User\keybindings.json" -Force
 Remove-Item "$env:USERPROFILE\.agents\skills" -Force
 Remove-Item "$env:USERPROFILE\.claude\skills" -Force
 $docs = [Environment]::GetFolderPath('MyDocuments')
@@ -129,7 +137,9 @@ Plugins and the shell-path cache live outside it, in `stdpath("data")` and
 ```
 .agents/skills/       Skill definitions, linked into ~/.agents and ~/.claude
 .config/nvim/         Neovim configuration, linked in by the setup scripts
+.config/pandoc/       pandoc user data directory (templates and defaults)
 .config/powershell/   PowerShell 7 profile, linked into Documents\PowerShell
+.config/vscode/       VS Code settings.json and keybindings.json
 .config/zsh/          zsh startup files, linked into $HOME on macOS
 scripts/              setup.sh (macOS/Linux) and setup.ps1 (Windows)
 docs/                 ARCHITECTURE.md and CHANGELOG.md
@@ -137,9 +147,11 @@ docs/                 ARCHITECTURE.md and CHANGELOG.md
 
 Inside `.config/nvim/`:
 
-- `init.lua` creates the global plugin table, loads `lua/core/` — which imports
-  the login-shell environment first and then the editor options, the mappings,
-  the LSP defaults and the filetype options — and finally loads `lua/plugins/`.
+- `init.lua` creates the global `Vellum` table, loads `lua/core/` — which
+  imports the login-shell environment first and then the editor options, the
+  commands, the terminal, the filetype behavior and the mappings — and finally
+  loads `lua/plugins/`, which builds the central plugin table and pulls in
+  `lua/lsp/`.
 - `lua/plugins/config.lua` is the single source of truth for plugins: one
   section per plugin holds its repository, options and keymaps, and
   `lua/plugins/pack.lua` turns that table into `vim.pack` specs with lazy
@@ -184,7 +196,9 @@ selected one with `<M-d>`.
 
 Plugins are managed by `vim.pack`: they are installed on first start, live in
 `stdpath("data")/site/pack/core/opt`, and `nvim-pack-lock.json` next to
-`init.lua` (tracked in Git) pins the revisions.
+`init.lua` pins the revisions. The lockfile is git-ignored (`*-lock.json`), so
+every machine pins its own; copy it over by hand to reproduce an exact plugin
+set elsewhere.
 
 | Command | Action |
 | --- | --- |
@@ -240,8 +254,10 @@ such as `:map`.
 | `jj` | Leave insert mode (better-escape.nvim) |
 | `<F11>` / `<C-=>` / `<C-->` | Neovide: fullscreen, zoom in, zoom out |
 
-Inside the file tree `g?` lists its own mappings, and `I`, `H` and `U` toggle
-the git-ignored, dotfile and custom filters. A terminal opens in insert mode,
+Inside the file tree `g?` lists its own mappings; the configuration remaps a
+few of them — `<CR>` opens media and office files with the system, `V`/`H` open
+vertical/horizontal splits, `.` toggles hidden files and `<F5>` reloads — and
+git integration is turned off. A terminal opens in insert mode,
 `<Esc>` leaves terminal mode, `<M-s>` toggles it, and a count picks another
 terminal: `2<leader>st` toggles terminal 2. `:VellumTerm` does the same from the
 command line — `:VellumTerm 3 direction=vertical size=50`, `:VellumTerm dsh`.
@@ -279,8 +295,9 @@ the keys you already know.
 
 - The central plugin table and its loader are adapted from
   [IceNvim](https://github.com/Shaobin-Jiang/IceNvim).
-- `nvim-pack-lock.json` is tracked so every machine installs the same plugin
-  revisions; `:VellumUpdate` moves it forward.
+- `nvim-pack-lock.json` pins the plugin revisions per machine — it is
+  git-ignored, so it is not shared through the repository; `:VellumUpdate`
+  moves it forward.
 - `temp/` is the scratch directory for throwaway files and is git-ignored.
 - Because `core/shell.lua` imports the login-shell environment once per
   session, a Neovide started from Finder/Dock still finds `node`, `npm` and
