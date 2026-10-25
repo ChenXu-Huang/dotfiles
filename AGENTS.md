@@ -21,7 +21,9 @@ the same pass as the changelog (see [Documentation](#documentation)).
 
 ## Language
 
-- Always use English in AGENTS.md and in all files under `docs/`.
+- Always use English in AGENTS.md, in all files under `docs/`, and in all code:
+  comments, strings, prompts, identifiers, and documentation in source files
+  must be written in English.
 
 ## Documentation
 
