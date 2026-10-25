@@ -8,6 +8,9 @@ Vellum.plugins["blink-cmp"] = {
     end,
     main = "blink.cmp",
     opts = {
+        snippets = {
+            preset = "luasnip",
+        },
         appearance = {
             kind_icons = Vellum.symbols,
         },
@@ -107,13 +110,6 @@ Vellum.plugins["blink-cmp"] = {
                 local source = { "lsp", "path", "snippets", "buffer" }
                 return source
             end,
-            providers = {
-                snippets = {
-                    opts = {
-                        search_paths = { vim.fs.joinpath(vim.fn.stdpath("config"), "snippets") },
-                    },
-                },
-            },
         },
     },
 }

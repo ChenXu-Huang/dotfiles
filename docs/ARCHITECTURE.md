@@ -43,13 +43,14 @@ into place.
 │           │   ├── completion.lua  blink.cmp section
 │           │   ├── format.lua      none-ls section
 │           │   └── extra.lua       lspsaga and trouble sections
-│           └── plugins/
-│               ├── config.lua     Central plugin table (single source for plugins)
-│               ├── pack.lua       vim.pack specs, lazy loading and the VeryLazy event
-│               ├── colorscheme.lua  Colorscheme list and switching
-│               ├── init.lua       Requires the table, colorschemes and `lsp/`
-│               ├── profile.lua    `:VellumProfile` state panel and `:VellumUpdate`
-│               └── utils.lua      Colorscheme and plugin helpers
+│           ├── plugins/
+│           │   ├── config.lua     Central plugin table (single source for plugins)
+│           │   ├── pack.lua       vim.pack specs, lazy loading and the VeryLazy event
+│           │   ├── colorscheme.lua  Colorscheme list and switching
+│           │   ├── init.lua       Requires the table, colorschemes and `lsp/`
+│           │   ├── profile.lua    `:VellumProfile` state panel and `:VellumUpdate`
+│           │   └── utils.lua      Colorscheme and plugin helpers
+│           └── snippets/       LuaSnip snippet modules, loaded by the from_lua loader
 ├── .agents/                  Skill definitions for the agent CLIs
 │   └── skills/               One directory per skill, linked into ~/.agents and ~/.claude
 ├── scripts/              Setup scripts
@@ -182,7 +183,7 @@ provides the environment, and a blocking fetch would only delay the extension.
 | --- | --- | --- |
 | `autopairs` | windwp/nvim-autopairs | Automatic bracket/quote pairing |
 | `better-escape` | max397574/better-escape.nvim | Leaves insert mode and terminal mode on `jj` without the `timeoutlen` delay |
-| `blink` | saghen/blink.cmp | Completion engine (with friendly-snippets and blink.lib) |
+| `blink` | saghen/blink.cmp | Completion engine (with friendly-snippets and blink.lib); snippets expand through its `luasnip` preset |
 | `colorizer` | NvChad/nvim-colorizer.lua | Inline color previews |
 | `dashboard` | nvimdev/dashboard-nvim | Start screen |
 | `fidget` | j-hui/fidget.nvim | LSP progress notifications |
@@ -192,6 +193,7 @@ provides the environment, and a blocking fetch would only delay the extension.
 | `hop` | smoka7/hop.nvim | Jump-to-anywhere motion |
 | `indent-blankline` | lukas-reineke/indent-blankline.nvim | Indentation guides |
 | `lspsaga` | nvimdev/lspsaga.nvim | LSP UI enhancements |
+| `luasnip` | L3MON4D3/LuaSnip | Snippet engine (with the jsregexp regex engine); backs blink.cmp's snippet source |
 | `lualine` | nvim-lualine/lualine.nvim | Statusline |
 | `markdown-preview` | iamcco/markdown-preview.nvim | Browser markdown preview (`<A-b>`) |
 | `mason` / `mason-lspconfig` | mason-org/mason.nvim, mason-lspconfig.nvim | LSP server wiring on nvim-lspconfig; installs the enabled servers and their formatters |
@@ -221,6 +223,20 @@ telescope covers the same job and is actively maintained. `<leader>bi` opens the
 The terminal is not a plugin: `core/terminal.lua` builds it on Neovim's built-in
 terminal (see [Terminal](#terminal)), which is also why `toggleterm.nvim` no
 longer appears in the table.
+
+### Snippets
+
+Snippets are LuaSnip's, and blink.cmp expands them through its `luasnip`
+preset. The plugin section's `config` runs two loaders: `from_lua` loads the
+native modules under `lua/snippets/` — `utils.lua` holds the shared helpers
+(math-mode detection, the greek/prefix/arrow tables, the matrix builder and
+the delimiter toggles), `math.lua` the math autosnippets, and `tex.lua`/
+`markdown.lua` the filetype-specific ones that both extend `math.lua` — while
+`from_vscode` loads the JSON snippets in `snippets/` immediately and
+friendly-snippets once blink.cmp is up (a one-shot `User VellumAfter
+blink-cmp` autocmd). `enable_autosnippets` and the jsregexp engine
+(`make install_jsregexp` on install) back the regex-triggered autosnippets,
+and `plaintex` extends the `tex` snippets.
 
 ### Terminal
 

@@ -205,6 +205,35 @@ config.lualine = {
     },
 }
 
+config.luasnip = {
+    "L3MON4D3/LuaSnip",
+    build = "make install_jsregexp",
+    opts = {
+        enable_autosnippets = true,
+    },
+    config = function(opts)
+        local luasnip = require("luasnip")
+        luasnip.setup(opts)
+        luasnip.filetype_extend("plaintex", { "tex" })
+
+        local from_vscode = require("luasnip.loaders.from_vscode")
+        from_vscode.lazy_load({
+            paths = vim.fs.joinpath(vim.fn.stdpath("config"), "snippets"),
+        })
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "VellumAfter blink-cmp",
+            once = true,
+            callback = function()
+                from_vscode.lazy_load()
+            end,
+        })
+
+        require("luasnip.loaders.from_lua").lazy_load({
+            paths = vim.fs.joinpath(vim.fn.stdpath("config"), "lua/snippets"),
+        })
+    end,
+}
+
 config["markdown-preview"] = {
     "iamcco/markdown-preview.nvim",
     ft = "markdown",

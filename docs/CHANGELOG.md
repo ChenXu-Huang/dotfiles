@@ -31,6 +31,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   work there; the right Option key still types special characters.
 - `.config/nvim/lua/plugins/config.lua`: better-escape.nvim now also leaves
   terminal mode on `jj` (`<C-\><C-n>`), in addition to insert mode.
+- `.config/nvim/lua/snippets/`: the snippet collection is rewritten as native
+  LuaSnip modules (converted from the hsnips setup): `utils.lua` holds the
+  shared helpers — math-mode detection (treesitter-based for tex, a delimiter
+  scan for markdown), the greek/prefix/arrow tables and the matrix and
+  delimiter toggles — `math.lua` the math autosnippets both filetypes share,
+  and `tex.lua`/`markdown.lua` the filetype-specific ones. LuaSnip is added to
+  the plugin table with the jsregexp regex engine (`make install_jsregexp`)
+  and `enable_autosnippets`, loads these modules through the `from_lua`
+  loader and the VS Code-format snippets (friendly-snippets plus
+  `snippets/`) through `from_vscode`; blink.cmp switches to the `luasnip`
+  snippet preset, so the snippet provider's `search_paths` option is gone.
 
 ### Changed
 

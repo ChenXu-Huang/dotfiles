@@ -161,8 +161,9 @@ Inside `.config/nvim/`:
 - `lua/core/vscode.lua` is loaded only when Neovim runs inside vscode-neovim.
 
 The plugin set covers LSP and tooling (mason, mason-lspconfig, nvim-lspconfig,
-none-ls, lspsaga, trouble, fidget), completion (blink.cmp with blink.lib and
-friendly-snippets), navigation (nvim-tree, telescope with fzf-native, hop),
+none-ls, lspsaga, trouble, fidget), completion (blink.cmp with blink.lib,
+LuaSnip and friendly-snippets), navigation (nvim-tree, telescope with
+fzf-native, hop),
 editing (autopairs, surround, indent-blankline, grug-far, better-escape),
 folding (nvim-ufo), git (gitsigns, neogit) and appearance (lualine, dashboard,
 which-key, scrollview, colorful-winsep, transparent, colorizer, todo-comments,
