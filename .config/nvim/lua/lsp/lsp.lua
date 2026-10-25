@@ -155,6 +155,7 @@ local lsp = {
     texlab = {
         formatter = "tex_fmt",
         setup = {},
+        enabled = true,
     },
     tinymist = {
         setup = {

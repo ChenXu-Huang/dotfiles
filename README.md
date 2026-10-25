@@ -173,19 +173,19 @@ opens a picker that previews them live; the choice is remembered across
 sessions.
 
 Syntax highlighting comes from the `main` branch of nvim-treesitter: the
-parsers in `ensure_installed` (C, C#, C++, CSS, Dockerfile, fish, Go, HTML,
-INI, JavaScript/TypeScript, JSON, LaTeX, Lua, Markdown, Python, query, Rust,
-TOML, Typst, TSX, Vim, Vimdoc and YAML) are installed on first start, the
+parsers in `ensure_installed` (BibTeX, C, C#, C++, CSS, Dockerfile, fish, Go,
+HTML, INI, JavaScript/TypeScript, JSON, LaTeX, Lua, Markdown, Python, query,
+Rust, TOML, Typst, TSX, Vim, Vimdoc and YAML) are installed on first start, the
 highlighter and its `indentexpr` attach per filetype, and rainbow-delimiters
 colors the bracket pairs. Language-specific plugins — flutter-tools,
 rustaceanvim and typst-preview — switch on with the `enabled` flag of the
 matching `Vellum.lsp` entry. The terminal is Neovim's built-in one
 (`lua/core/terminal.lua`).
 
-The enabled LSP servers are lua-language-server and pyright, with StyLua and
-ruff as their formatters — mason installs all four on first start. The other
-entries in `lua/lsp/lsp.lua` (clangd, gopls, the HTML/CSS/JSON and TypeScript
-servers, texlab, tinymist and more) stay off until their section gets
+The enabled LSP servers are lua-language-server, pyright and texlab, with
+StyLua, ruff and tex-fmt as their formatters — mason installs all six on first
+start. The other entries in `lua/lsp/lsp.lua` (clangd, gopls, the HTML/CSS/JSON
+and TypeScript servers, tinymist and more) stay off until their section gets
 `enabled = true`.
 
 Buffer switching is telescope's `buffers` picker: `bufferline.nvim` has had no

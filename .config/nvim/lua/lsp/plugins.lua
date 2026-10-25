@@ -73,8 +73,12 @@ Vellum.plugins.mason = {
             registry.refresh()
         end
 
+        local mason_name_alias = {
+            tex_fmt = "tex-fmt",
+        }
+
         local function install(package)
-            local s, p = pcall(registry.get_package, package)
+            local s, p = pcall(registry.get_package, mason_name_alias[package] or package)
             if s and not p:is_installed() then
                 p:install()
             end

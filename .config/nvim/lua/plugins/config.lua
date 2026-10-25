@@ -477,13 +477,15 @@ config.treesitter = {
         ensure_installed = {
             "c", "c_sharp", "cpp", "css", "dockerfile", "fish", "go", "html", "ini", "javascript", "json",
             "latex", "lua", "markdown", "markdown_inline", "python", "query", "rust", "toml", "typescript", "typst",
-            "tsx", "vim", "vimdoc", "yaml"
+            "tsx", "vim", "vimdoc", "yaml", "bibtex"
         },
         -- stylua: ignore end
     },
     config = function(opts)
         local nvim_treesitter = require("nvim-treesitter")
         nvim_treesitter.setup()
+
+        vim.treesitter.language.register("latex", { "tex", "plaintex" })
 
         local builtin_syntax_filetypes = { sh = true, bash = true, zsh = true, ps1 = true }
 

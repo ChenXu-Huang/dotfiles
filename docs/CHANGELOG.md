@@ -42,6 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   loader and the VS Code-format snippets (friendly-snippets plus
   `snippets/`) through `from_vscode`; blink.cmp switches to the `luasnip`
   snippet preset, so the snippet provider's `search_paths` option is gone.
+- `.config/nvim/lua/lsp/lsp.lua`: texlab is enabled for LaTeX, with `tex-fmt`
+  as its formatter — the mason installer maps names through a new alias table
+  (`tex_fmt` → the `tex-fmt` package), because none-ls and mason spell the
+  formatter differently. The treesitter section registers the `latex` parser
+  for the `tex` and `plaintex` filetypes and adds `bibtex` to
+  `ensure_installed`.
 
 ### Changed
 

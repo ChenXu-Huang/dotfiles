@@ -172,8 +172,10 @@ provides the environment, and a blocking fetch would only delay the extension.
   `enabled` flag of its `Vellum.lsp` entry) to `Vellum.plugins`, and holds the
   global diagnostic appearance (`vim.diagnostic.config`). The mason setup
   installs every `enabled` server together with its `formatter` packages on
-  first start, merges blink.cmp's LSP capabilities into each server's
-  `vim.lsp.config()` call and enables the matching servers per filetype.
+  first start — a name-alias table maps the entries whose mason package name
+  differs from the none-ls spelling (`tex_fmt` → `tex-fmt`) — merges
+  blink.cmp's LSP capabilities into each server's `vim.lsp.config()` call and
+  enables the matching servers per filetype.
   `lua/lsp/format.lua` builds the none-ls sources from each server's
   `formatter` field, so `<leader>lf` formats through that one source.
 
@@ -260,9 +262,10 @@ arguments.
 ### Treesitter
 
 Syntax highlighting comes from the `main` branch of nvim-treesitter: the
-parsers in `ensure_installed` (C, C#, C++, CSS, Dockerfile, fish, Go, HTML,
-INI, JavaScript/TypeScript, JSON, LaTeX, Lua, Markdown, Python, query, Rust,
-TOML, Typst, TSX, Vim, Vimdoc and YAML) are installed on first start, and a
+parsers in `ensure_installed` (BibTeX, C, C#, C++, CSS, Dockerfile, fish, Go,
+HTML, INI, JavaScript/TypeScript, JSON, LaTeX, Lua, Markdown, Python, query,
+Rust, TOML, Typst, TSX, Vim, Vimdoc and YAML) are installed on first start,
+the `latex` parser is registered for the `tex` and `plaintex` filetypes, and a
 `FileType` autocommand attaches `vim.treesitter.start()` and the treesitter
 `indentexpr` to every buffer in one of those languages. The shell filetypes
 (sh, bash, zsh, ps1) are left out and keep their builtin syntax, files beyond
