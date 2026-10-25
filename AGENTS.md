@@ -49,7 +49,8 @@ edit them "for later".
   `vim.pack` specs; core editor behavior goes in `.config/nvim/lua/core/`.
 - Do not add comments to code: let the code explain itself. Write a comment
   only when the user asks for one.
-- `.config/nvim/nvim-pack-lock.json` is tracked; commit it with plugin changes.
+- `.config/nvim/nvim-pack-lock.json` is git-ignored (`*-lock.json`); `vim.pack`
+  regenerates it locally on plugin changes, so never stage or commit it.
 
 ## Temporary Files
 
