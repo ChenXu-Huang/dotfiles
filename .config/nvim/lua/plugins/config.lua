@@ -803,7 +803,7 @@ config.winsep = {
 
 config["better-escape"] = {
     "max397574/better-escape.nvim",
-    event = "InsertEnter",
+    event = { "InsertEnter", "TermEnter" },
     main = "better_escape",
     opts = {
         default_mappings = false,

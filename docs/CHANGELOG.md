@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `.config/nvim/lua/plugins/config.lua`: better-escape.nvim only loaded on
+  `InsertEnter`, so the terminal-mode `jj` mapping declared for it never fired
+  in a terminal opened before any insert-mode entry; the section now also
+  loads the plugin on `TermEnter`, making `jj` send `<C-\><C-n>` there.
+
 ## [0.5.0] - 2026-10-25
 
 ### Added
