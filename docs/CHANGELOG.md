@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `.config/nvim/lua/core/terminal.lua`: `opts.cmd` may now be a list of
+  command strings forming a fallback chain — when a command exits non-zero
+  within a fallback window (10 s by default, overridable per terminal with
+  `opts.fallback_window_ms`) and chain entries remain, the terminal restarts
+  the next command in place (same window, fresh buffer) with a notification;
+  string commands and shell-default terminals behave as before.
+  `.config/nvim/lua/core/keymap.lua` uses it for `<leader>sd`: a failed
+  `dsh-tui --resume` start now falls back to plain `dsh-tui`.
+
 ### Fixed
 
 - `.config/nvim/lua/plugins/config.lua`: better-escape.nvim only loaded on

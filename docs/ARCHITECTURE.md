@@ -250,10 +250,17 @@ default) or a horizontal split (15 lines), and closing a terminal only hides
 its window, so the running job survives. Closing records the window size and
 whether the buffer was in normal mode, and the next open restores both.
 
-When the job exits, the window is closed and the buffer deleted unless the
-terminal installed an `on_exit` handler: `dsh-tui` uses that to report a
-non-zero exit code, keeps `<Esc>` for the TUI (elsewhere `<Esc>` is the global
-"leave terminal mode" mapping) and disposes only on a clean exit.
+`opts.cmd` may also be a list of command strings forming a fallback chain:
+when a command exits non-zero within a fallback window (10 s by default,
+overridable per terminal with `opts.fallback_window_ms`) and chain entries
+remain, the terminal restarts the next command in place — same window, fresh
+buffer — with a notification; a string `cmd` behaves as before. When the job
+exits, the window is closed and the buffer deleted unless the terminal
+installed an `on_exit` handler: `dsh-tui` uses that to report a non-zero exit
+code, keeps `<Esc>` for the TUI (elsewhere `<Esc>` is the global
+"leave terminal mode" mapping) and disposes only on a clean exit; its
+`<leader>sd` session starts with `dsh-tui --resume` and falls back to plain
+`dsh-tui` through that chain.
 `<leader>st`/`sv`/`sh` read `v:count1` as the terminal id, `<M-s>` toggles the
 terminal under the cursor, `<C-t>` still opens a plain split terminal, and
 `:VellumTerm` exposes the same API with `id`, `direction=` and `size=`

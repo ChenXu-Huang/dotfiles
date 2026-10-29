@@ -259,7 +259,7 @@ if not utils.is_vscode then
         "<leader>sd",
         function()
             Vellum.terminal.toggle("dsh", "vertical", {
-                cmd = "dsh-tui --resume",
+                cmd = { "dsh-tui --resume", "dsh-tui" },
                 escape = true,
                 on_exit = function(code, term)
                     if code == 0 then

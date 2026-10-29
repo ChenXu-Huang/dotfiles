@@ -9,6 +9,8 @@ local M = {}
 ---@field height integer?
 ---@field mode string?
 ---@field job integer?
+---@field started_at integer?
+---@field cmd_index integer?
 ---@field sizes table<string, integer>
 ---@field opts table
 
@@ -16,6 +18,8 @@ local M = {}
 local terminals = {}
 
 local directions = { "float", "vertical", "horizontal" }
+
+local FALLBACK_WINDOW_MS = 10000
 
 local function is_open(t)
     return t.win ~= nil and vim.api.nvim_win_is_valid(t.win) and vim.api.nvim_win_get_buf(t.win) == t.buf
@@ -55,15 +59,49 @@ local function dispose(t)
     t.win = nil
     t.buf = nil
     t.job = nil
+    t.started_at = nil
+    t.cmd_index = nil
     t.mode = nil
 end
 
 M.dispose = dispose
 
+local open
+
+local function try_fallback(t, code)
+    local cmds = t.opts.cmd
+
+    if type(cmds) ~= "table" or code == 0 then
+        return false
+    end
+
+    local index = t.cmd_index or 1
+    local elapsed_ms = t.started_at and (vim.uv.hrtime() - t.started_at) / 1e6
+
+    if index >= #cmds or not elapsed_ms or elapsed_ms >= (t.opts.fallback_window_ms or FALLBACK_WINDOW_MS) then
+        return false
+    end
+
+    t.cmd_index = index + 1
+
+    vim.notify(
+        cmds[index] .. " failed to start (exit code " .. tostring(code) .. "), trying " .. cmds[t.cmd_index],
+        vim.log.levels.WARN
+    )
+
+    open(t, true)
+
+    return true
+end
+
 local function handle_exit(t)
     return function(_, code)
         vim.schedule(function()
             t.job = nil
+
+            if try_fallback(t, code) then
+                return
+            end
 
             if t.opts.on_exit then
                 t.opts.on_exit(code, t)
@@ -104,28 +142,65 @@ local function open_window(t)
     end
 end
 
-local function open(t)
-    local new_buf = ensure_buf(t)
+local function resolve_cmd(t)
+    local cmd = t.opts.cmd
 
-    open_window(t)
+    if type(cmd) == "table" then
+        return cmd[t.cmd_index or 1]
+    end
+
+    return cmd or vim.o.shell
+end
+
+local function start_job(t)
+    local cmd = resolve_cmd(t)
+
+    t.job = vim.fn.jobstart(cmd, { term = true, on_exit = handle_exit(t) })
+
+    if t.job <= 0 then
+        vim.notify("Failed to start terminal: " .. tostring(cmd), vim.log.levels.ERROR)
+        return false
+    end
+
+    t.started_at = vim.uv.hrtime()
+
+    vim.bo[t.buf].filetype = "terminal"
+
+    if t.opts.escape then
+        vim.keymap.set("t", "<Esc>", "<Esc>", { buffer = t.buf, silent = true, desc = "Send Esc to dsh-tui" })
+    end
+
+    return true
+end
+
+open = function(t, in_place)
+    local new_buf
+
+    if in_place then
+        local old_buf = t.buf
+
+        t.buf = nil
+        new_buf = ensure_buf(t)
+
+        if t.win and vim.api.nvim_win_is_valid(t.win) then
+            vim.api.nvim_win_set_buf(t.win, t.buf)
+        else
+            open_window(t)
+        end
+
+        if old_buf and vim.api.nvim_buf_is_valid(old_buf) then
+            vim.api.nvim_buf_delete(old_buf, { force = true })
+        end
+    else
+        new_buf = ensure_buf(t)
+        open_window(t)
+    end
+
     vim.api.nvim_set_current_win(t.win)
 
-    if new_buf then
-        local cmd = t.opts.cmd or vim.o.shell
-
-        t.job = vim.fn.jobstart(cmd, { term = true, on_exit = handle_exit(t) })
-
-        if t.job <= 0 then
-            vim.notify("Failed to start terminal: " .. tostring(cmd), vim.log.levels.ERROR)
-            dispose(t)
-            return
-        end
-
-        vim.bo[t.buf].filetype = "terminal"
-
-        if t.opts.escape then
-            vim.keymap.set("t", "<Esc>", "<Esc>", { buffer = t.buf, silent = true, desc = "Send Esc to dsh-tui" })
-        end
+    if new_buf and not start_job(t) then
+        dispose(t)
+        return
     end
 
     if t.mode ~= "nt" then
