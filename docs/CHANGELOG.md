@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `.config/nvim/lua/plugins/config.lua`: `better-escape.nvim` no longer maps
+  `jj` to `<C-\><C-n>` in terminal mode and no longer loads on `TermEnter`, so
+  the plugin is insert-mode only again. Terminal mode is back to its original
+  keys: `<C-\><C-n>` leaves terminal mode, `<Esc>` maps to it, and `<M-s>`
+  toggles the terminal under the cursor.
+
 ## [0.5.1] - 2026-10-31
 
 ### Added

@@ -184,7 +184,7 @@ provides the environment, and a blocking fetch would only delay the extension.
 | Section | Plugin | Purpose |
 | --- | --- | --- |
 | `autopairs` | windwp/nvim-autopairs | Automatic bracket/quote pairing |
-| `better-escape` | max397574/better-escape.nvim | Leaves insert mode and terminal mode on `jj` without the `timeoutlen` delay |
+| `better-escape` | max397574/better-escape.nvim | Leaves insert mode on `jj` without the `timeoutlen` delay |
 | `blink` | saghen/blink.cmp | Completion engine (with friendly-snippets and blink.lib); snippets expand through its `luasnip` preset |
 | `colorizer` | NvChad/nvim-colorizer.lua | Inline color previews |
 | `dashboard` | nvimdev/dashboard-nvim | Start screen |

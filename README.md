@@ -252,7 +252,7 @@ such as `:map`.
 | `<leader>uc` / `<leader>ut` | View configuration / todo list |
 | `<leader>qn` / `<leader>qp` / `<leader>qo` / `<leader>qc` | Quickfix next / prev / open / close |
 | `<C-z>` | Undo, in normal, visual and insert mode |
-| `jj` | Leave insert or terminal mode (better-escape.nvim) |
+| `jj` | Leave insert mode (better-escape.nvim) |
 | `<F11>` / `<C-=>` / `<C-->` | Neovide: fullscreen, zoom in, zoom out |
 
 Inside the file tree `g?` lists its own mappings; the configuration remaps a
