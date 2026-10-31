@@ -271,6 +271,41 @@ if not utils.is_vscode then
             })
         end,
     }
+
+    Vellum.keymap.lazygit = {
+        "n",
+        "<leader>gg",
+        function()
+            if vim.fn.executable("lazygit") == 0 then
+                vim.notify("lazygit is not installed", vim.log.levels.ERROR)
+                return
+            end
+
+            local root = vim.fs.root(0, ".git")
+
+            if not root then
+                vim.notify("Not in a git repository", vim.log.levels.WARN)
+                return
+            end
+
+            Vellum.terminal.toggle("lazygit", "float", {
+                cmd = "lazygit",
+                cwd = root,
+                width = math.floor(vim.o.columns * 0.9),
+                height = math.floor(vim.o.lines * 0.9),
+                escape = true,
+                on_exit = function(code, term)
+                    Vellum.terminal.dispose(term)
+
+                    if code and code ~= 0 then
+                        vim.notify("lazygit exited with code " .. tostring(code), vim.log.levels.WARN)
+                    end
+
+                    vim.cmd("checktime")
+                end,
+            })
+        end,
+    }
 end
 
 if vim.g.neovide then

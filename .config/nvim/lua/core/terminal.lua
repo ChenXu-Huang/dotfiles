@@ -155,7 +155,7 @@ end
 local function start_job(t)
     local cmd = resolve_cmd(t)
 
-    t.job = vim.fn.jobstart(cmd, { term = true, on_exit = handle_exit(t) })
+    t.job = vim.fn.jobstart(cmd, { term = true, cwd = t.opts.cwd, on_exit = handle_exit(t) })
 
     if t.job <= 0 then
         vim.notify("Failed to start terminal: " .. tostring(cmd), vim.log.levels.ERROR)
@@ -255,6 +255,14 @@ M.toggle = function(id, direction, opts)
     if opts then
         if opts.size then
             t.sizes[t.direction] = opts.size
+        end
+
+        if opts.width then
+            t.width = opts.width
+        end
+
+        if opts.height then
+            t.height = opts.height
         end
 
         t.opts = vim.tbl_extend("force", t.opts, opts)

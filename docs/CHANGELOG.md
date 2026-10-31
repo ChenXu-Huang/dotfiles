@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `.config/nvim/lua/core/keymap.lua` and
+  `.config/nvim/lua/core/terminal.lua`: `<leader>gg` opens `lazygit` in a
+  floating terminal rooted at the repository and sized to 90% of the editor;
+  closing `lazygit` disposes the terminal, a non-zero exit is reported and
+  changed buffers are reloaded with `:checktime`. The terminal gained
+  `opts.cwd` (passed to `jobstart`) and `opts.width`/`opts.height` float-size
+  overrides for it, and it warns instead of opening when `lazygit` is missing
+  or the buffer is outside a Git repository.
+
 ### Removed
 
 - `.config/nvim/lua/plugins/config.lua`: `better-escape.nvim` no longer maps

@@ -261,6 +261,10 @@ code, keeps `<Esc>` for the TUI (elsewhere `<Esc>` is the global
 "leave terminal mode" mapping) and disposes only on a clean exit; its
 `<leader>sd` session starts with `dsh-tui --resume` and falls back to plain
 `dsh-tui` through that chain.
+`opts.cwd` is handed to `jobstart`, and `opts.width`/`opts.height` override the
+default float size, so `<leader>gg` runs `lazygit` in a 90%-size float rooted
+at the repository; its exit handler disposes the terminal, warns on a non-zero
+exit and reloads changed buffers with `:checktime`.
 `<leader>st`/`sv`/`sh` read `v:count1` as the terminal id, `<M-s>` toggles the
 terminal under the cursor, `<C-t>` still opens a plain split terminal, and
 `:VellumTerm` exposes the same API with `id`, `direction=` and `size=`

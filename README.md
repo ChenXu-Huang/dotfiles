@@ -17,7 +17,8 @@ place, so everything is edited in one repository and tracked in Git.
   packages), the `tree-sitter` CLI (parser compilation; on Windows that means
   MSVC's `cl.exe` in `PATH`), `python3` and `gzip` or `7z` (mason packages).
   `rg` and `fd` keep telescope's grep and file pickers fast; `tokei` enables
-  `:VellumTokei`, and `dsh-tui` backs the `<leader>sd` session.
+  `:VellumTokei`, `dsh-tui` backs the `<leader>sd` session, and `lazygit` backs
+  `<leader>gg`.
   `:checkhealth core` reports what is missing.
 - Optional: a Nerd Font (`JetBrainsMono Nerd Font Mono` is the configured GUI
   font), [Neovide](https://neovide.dev), and `pwsh` — on Windows Neovim uses
@@ -246,6 +247,7 @@ such as `:map`.
 | `<leader>gb` / `<leader>gl` | Git blame / blame line |
 | `<leader>gB` | Stage the buffer |
 | `<leader>gt` | Neogit |
+| `<leader>gg` | Lazygit in a floating terminal |
 | `<leader>hp` | Hop to word |
 | `<leader>ug` | Project-wide find and replace (grug-far) |
 | `<leader>ul` / `<leader>uu` | Plugin list / undotree |
@@ -260,7 +262,8 @@ few of them — `<CR>` opens media and office files with the system, `V`/`H` ope
 vertical/horizontal splits, `.` toggles hidden files and `<F5>` reloads — and
 git integration is turned off. A terminal opens in insert mode,
 `<Esc>` leaves terminal mode, `<M-s>` toggles it, and a count picks another
-terminal: `2<leader>st` toggles terminal 2. `:VellumTerm` does the same from the
+terminal: `2<leader>st` toggles terminal 2. `<leader>gg` runs `lazygit` in a
+90%-size float rooted at the repository. `:VellumTerm` does the same from the
 command line — `:VellumTerm 3 direction=vertical size=50`, `:VellumTerm dsh`.
 
 ## VS Code (vscode-neovim)
