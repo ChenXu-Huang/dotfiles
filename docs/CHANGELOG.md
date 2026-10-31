@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `utils.is_neovide` flag, and its startup working directory is switched to
   `~/Projects`, so the GUI opens in the projects folder instead of the
   launcher's directory. The configured GUI options themselves are unchanged.
+- `.config/nvim/lua/core/keymap.lua`: terminal mode gains `<M-s>` as a second
+  way to leave it (`<C-\><C-n>`, mapped as `<Esc>`, still works), while the
+  terminal toggle moves from `<M-s>` to `<M-S>`, so leaving the terminal and
+  hiding it no longer share a key.
 
 ### Removed
 

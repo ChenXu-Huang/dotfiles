@@ -260,8 +260,8 @@ such as `:map`.
 Inside the file tree `g?` lists its own mappings; the configuration remaps a
 few of them — `<CR>` opens media and office files with the system, `V`/`H` open
 vertical/horizontal splits, `.` toggles hidden files and `<F5>` reloads — and
-git integration is turned off. A terminal opens in insert mode,
-`<Esc>` leaves terminal mode, `<M-s>` toggles it, and a count picks another
+git integration is turned off. A terminal opens in insert mode, `<Esc>` or
+`<M-s>` leaves terminal mode, `<M-S>` toggles it, and a count picks another
 terminal: `2<leader>st` toggles terminal 2. `<leader>gg` runs `lazygit` in a
 90%-size float rooted at the repository. `:VellumTerm` does the same from the
 command line — `:VellumTerm 3 direction=vertical size=50`, `:VellumTerm dsh`.

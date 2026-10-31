@@ -203,6 +203,7 @@ Vellum.keymap = {
     quickfix_close = { "n", "<leader>qc", ":cclose<CR>" },
 
     normal_mode_in_terminal = { "t", "<Esc>", "<C-\\><C-n>" },
+    normal_mode_in_terminal_another = { "t", "<M-s>", "<C-\\><C-n>" },
     save_file = { { "n", "i", "v" }, "<C-s>", save_file },
     undo = { { "n", "i", "v" }, "<C-z>", undo },
     undotree = { "n", "<leader>uu", undotree_toggle },
@@ -249,7 +250,7 @@ if not utils.is_vscode then
     }
     Vellum.keymap.close_terminal = {
         "t",
-        "<M-s>",
+        "<M-S>",
         function()
             Vellum.terminal.toggle_current()
         end,

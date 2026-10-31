@@ -265,8 +265,9 @@ code, keeps `<Esc>` for the TUI (elsewhere `<Esc>` is the global
 default float size, so `<leader>gg` runs `lazygit` in a 90%-size float rooted
 at the repository; its exit handler disposes the terminal, warns on a non-zero
 exit and reloads changed buffers with `:checktime`.
-`<leader>st`/`sv`/`sh` read `v:count1` as the terminal id, `<M-s>` toggles the
-terminal under the cursor, `<C-t>` still opens a plain split terminal, and
+`<leader>st`/`sv`/`sh` read `v:count1` as the terminal id, `<M-s>` leaves
+terminal mode like `<Esc>`, `<M-S>` toggles the terminal under the cursor,
+`<C-t>` still opens a plain split terminal, and
 `:VellumTerm` exposes the same API with `id`, `direction=` and `size=`
 arguments.
 
