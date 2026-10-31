@@ -8,6 +8,7 @@ local utils = {
     is_windows = vim.uv.os_uname().sysname == "Windows_NT",
     is_wsl = string.find(vim.uv.os_uname().release, "WSL") ~= nil,
     is_vscode = vim.g.vscode ~= nil,
+    is_neovide = vim.g.neovide ~= nil,
     noplugin = vim.list_contains(argv, "--noplugin") or vim.list_contains(argv, "--noplugins"),
     version = version,
 }

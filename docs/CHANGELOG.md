@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   overrides for it, and it warns instead of opening when `lazygit` is missing
   or the buffer is outside a Git repository.
 
+### Changed
+
+- `.config/nvim/lua/core/basic.lua` and
+  `.config/nvim/lua/core/utils.lua`: Neovide is detected through the shared
+  `utils.is_neovide` flag, and its startup working directory is switched to
+  `~/Projects`, so the GUI opens in the projects folder instead of the
+  launcher's directory. The configured GUI options themselves are unchanged.
+
 ### Removed
 
 - `.config/nvim/lua/plugins/config.lua`: `better-escape.nvim` no longer maps
