@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   keys: `<C-\><C-n>` leaves terminal mode, `<Esc>` maps to it, and `<M-s>`
   toggles the terminal under the cursor.
 
+### Fixed
+
+- `.config/nvim/lua/core/terminal.lua`: floating terminals sat one row low,
+  because `height` counts content rows while the rounded border adds two more
+  rows; the row offset now accounts for the border, so the float is centered in
+  the editor.
+
 ## [0.5.1] - 2026-10-31
 
 ### Added

@@ -116,13 +116,16 @@ local function open_window(t)
     if t.direction == "float" then
         local width, height = float_size(t)
 
+        -- NOTE: `height` counts terminal content rows only. With a symmetric
+        -- border the float occupies `height + 2` rows; blank rows above are
+        -- `row`, blank rows below are `lines - row - (height + 2)`.
         t.win = vim.api.nvim_open_win(t.buf, true, {
             relative = "editor",
             style = "minimal",
             border = "rounded",
             width = width,
             height = height,
-            row = math.floor((vim.o.lines - height) / 2),
+            row = math.floor((vim.o.lines - height) / 2 - 1),
             col = math.floor((vim.o.columns - width) / 2),
         })
 
