@@ -29,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   way to leave it (`<C-\><C-n>`, mapped as `<Esc>`, still works), while the
   terminal toggle moves from `<M-s>` to `<M-S>`, so leaving the terminal and
   hiding it no longer share a key.
+- `.agents/skills/commit`: the release pass may now reconcile conflicting
+  entries inside the `Unreleased` block it promotes — rewriting or removing
+  only the entries the release supersedes — because the strict append-only rule
+  let a promoted version describe two contradictory states. Commit mode stays
+  append-only, and released sections and unrelated entries are never touched.
 
 ### Removed
 
