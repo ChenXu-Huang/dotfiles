@@ -108,12 +108,12 @@ vim.api.nvim_create_autocmd("CmdwinEnter", {
 if utils.is_neovide then
     vim.o.guifont = "JetBrainsMono Nerd Font Mono"
     vim.fn.chdir(vim.fn.expand("~/Projects"))
-    g.neovide_scale_factor = 0.85
+    g.neovide_scale_factor = 0.80
     g.neovide_opacity = 0.95
-    g.neovide_cursur_animation_length = 0.13
-    g.neovide_cursur_vfx_mode = "railgun"
+    g.neovide_cursor_animation_length = 0.13
+    g.neovide_cursor_vfx_mode = "railgun"
     g.neovide_refresh_rate = 144
     g.neovide_refresh_rate_idle = 5
-    g.neovide_remenber_window_size = true
+    g.neovide_remember_window_size = true
     g.neovide_input_macos_option_key_is_meta = "only_left"
 end

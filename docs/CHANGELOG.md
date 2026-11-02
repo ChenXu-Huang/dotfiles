@@ -49,6 +49,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   because `height` counts content rows while the rounded border adds two more
   rows; the row offset now accounts for the border, so the float is centered in
   the editor.
+- `.config/nvim/lua/core/basic.lua`: three Neovide settings had no effect
+  because their option names were misspelled
+  (`neovide_cursur_animation_length`, `neovide_cursur_vfx_mode`,
+  `neovide_remenber_window_size`); the spellings are corrected, so the cursor
+  animation and its railgun effect apply again and the window size is
+  remembered, and the scale factor is lowered from 0.85 to 0.80.
 
 ## [0.5.1] - 2026-10-31
 
