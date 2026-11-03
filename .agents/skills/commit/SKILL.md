@@ -64,7 +64,7 @@ Group the changes into **atomic commits**: one logical change per commit, sized 
 
 Work through the planned commits in plan order. For each one: **write the docs this commit requires, `git add` its files by name, write the message, `git commit` — then loop to the next.** The docs are written immediately before their own commit, so they land in the commit they describe and never leak into an earlier one.
 
-#### 3.1 Write the docs this commit requires
+#### Write the docs this commit requires
 
 `docs/CHANGELOG.md`, `docs/ARCHITECTURE.md`, and `README.md` are **not** touched on every commit. Decide from this commit's diff (from Step 1) whether the change is user-visible or structural: when it is neither, the correct action is to change none of these files and go straight to staging.
 
@@ -87,9 +87,9 @@ Work through the planned commits in plan order. For each one: **write the docs t
 
 When in doubt between an entry and no entry, the entry is the safer choice — but never invent a user-facing change that the diff does not contain.
 
-#### 3.2 Stage by name
+#### Stage by name
 
-Stage exactly this commit's files — the changes from the working tree plus the doc edits 3.1 just wrote — naming every path:
+Stage exactly this commit's files — the changes from the working tree plus the doc edits written in [Write the docs this commit requires](#write-the-docs-this-commit-requires) — naming every path:
 
 ```bash
 git add path/to/file another/file a/directory/
@@ -98,7 +98,7 @@ git diff --cached --stat
 
 `git add .`, `git add -A` and `git add -u` are forbidden: staging names the files and directories, so unrelated or sensitive working-tree changes stay out of the commit. A file the plan did not assign to this commit is not staged "just in case".
 
-#### 3.3 Write the message
+#### Write the message
 
 Format: [Conventional Commits](https://www.conventionalcommits.org/) — `type(scope): description`
 
@@ -161,7 +161,7 @@ feat(api)!: redesign error response format
 BREAKING CHANGE: Error responses now use `{error: {code, message}}` instead of flat `{code, message}`.
 ```
 
-#### 3.4 Commit
+#### Commit
 
 ```bash
 git commit -F - <<'EOF'
@@ -173,7 +173,7 @@ EOF
 
 The quoted heredoc survives quotes and apostrophes in the text. Co-authored-by trailer is added automatically by the tool; do not include it in the message.
 
-### Step 4: Release Mode — `/commit v{version}`
+### Optional Step 4: Release Mode — `/commit v{version}`
 
 **Trigger:** the user writes `/commit v{version}` (for example `/commit v0.3.0`), optionally with extra instructions. Accept the version with or without the `v` prefix and tag with `v` either way; when what follows the command is not a plausible version (`v2`, `v1.2.3.4`, free text), the subagent returns to the main agent, which asks the user to state the exact version. The version in the command is authoritative — it is the version to prepare, not a suggestion to re-derive.
 
