@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - `.config/nvim/lua/core/keymap.lua` and `.config/nvim/lua/core/terminal.lua`: `<leader>gg` opens `lazygit` in a floating terminal rooted at the repository and sized to 90% of the editor; closing `lazygit` disposes the terminal, a non-zero exit is reported and changed buffers are reloaded with `:checktime`. The terminal gained `opts.cwd` (passed to `jobstart`) and `opts.width`/`opts.height` float-size overrides for it, and it warns instead of opening when `lazygit` is missing or the buffer is outside a Git repository.
+- `.agents/skills/code-style`: Markdown and TeX join the covered languages through `references/markdown.md` and `references/tex.md`. The Markdown rules require one source line per prose paragraph and list item instead of hard wrapping, forbid hand-written heading numbers and `#####`/`######` headings, and leave code blocks, tables and front matter unreflowed; the TeX rules require `\(...\)` and `\[...\]` instead of `$...$` and `$$...$$`, `\mathrm{d}` for the differential, and one source line per paragraph. The skill description and reference index list both files.
 
 ### Changed
 

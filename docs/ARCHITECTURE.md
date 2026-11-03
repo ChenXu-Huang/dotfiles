@@ -194,7 +194,7 @@ Both scripts check the environment before linking and are safe to re-run: when t
 
 ### `code-style`
 
-Per-language code style rules for Python, Lua, PowerShell, and Bash: one self-contained file per language, with `assets/language-template.md` as the starting point for adding another.
+Per-language code style rules for Python, Lua, PowerShell, Bash, Markdown, and TeX: one self-contained file per language, with `assets/language-template.md` as the starting point for adding another. The Markdown file owns the unwrapped-prose and heading rules; the TeX file owns the math delimiters, the differential and section titles.
 
 ## PowerShell Profile
 
