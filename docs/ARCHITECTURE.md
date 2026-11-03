@@ -196,6 +196,10 @@ Both scripts check the environment before linking and are safe to re-run: when t
 
 Per-language code style rules for Python, Lua, PowerShell, Bash, Markdown, and TeX: one self-contained file per language, with `assets/language-template.md` as the starting point for adding another. The Markdown file owns the unwrapped-prose and heading rules; the TeX file owns the math delimiters, the differential and section titles.
 
+### `mineru`
+
+Local document parsing for the agent CLIs: MinerU 4.x turns PDFs, images and Office documents into Markdown or JSON with reconstructed reading order, tables and formulas as LaTeX. The skill selects a parsing tier for the available hardware, writes temporary conversions under `temp/`, validates formula and table output before trusting it, and keeps documents local unless the user explicitly permits a remote run.
+
 ## PowerShell Profile
 
 `.config/powershell/` holds the Windows PowerShell 7 configuration, which `scripts/setup.ps1` links into `Documents\PowerShell`:
