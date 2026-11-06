@@ -73,7 +73,18 @@ local lsp = {
                         end)(),
                     },
                     diagnostics = {
-                        globals = { "vim" },
+                        globals = {
+                            "vim",
+                            "pandoc",
+                            "FORMAT",
+                            "PANDOC_API_VERSION",
+                            "PANDOC_DOCUMENT",
+                            "PANDOC_READER_OPTIONS",
+                            "PANDOC_SCRIPT_FILE",
+                            "PANDOC_STATE",
+                            "PANDOC_VERSION",
+                            "PANDOC_WRITER_OPTIONS",
+                        },
                     },
                     hint = {
                         enable = true,
