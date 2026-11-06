@@ -1,9 +1,81 @@
 local script_path = PANDOC_SCRIPT_FILE:match("(.*[/\\])") or ""
+local default_resource_root = script_path .. "../assets/"
 
-local resource_root = script_path .. "../resources/"
-local env_resource_root = os.getenv("PANDOC_RESOURCES_DIR")
-if env_resource_root and env_resource_root ~= "" then
-    resource_root = env_resource_root:gsub("[/\\]+$", "") .. "/"
+local function path_exists(path)
+    local handle = io.open(path, "r")
+    if handle then
+        handle:close()
+        return true
+    end
+    return pcall(pandoc.system.with_working_directory, path, function() end)
+end
+
+local function find_project_root(start)
+    local dir = start
+    while dir do
+        if path_exists(pandoc.path.join({ dir, ".git" })) then
+            return dir
+        end
+        local parent = pandoc.path.directory(dir)
+        if parent == dir then
+            return nil
+        end
+        dir = parent
+    end
+    return nil
+end
+
+local function document_dir()
+    local cwd = pandoc.system.get_working_directory()
+    local input = PANDOC_STATE.input_files[1]
+    if not input or input == "-" then
+        return cwd
+    end
+    if not pandoc.path.is_absolute(input) then
+        input = pandoc.path.join({ cwd, input })
+    end
+    return pandoc.path.directory(input)
+end
+
+local function metadata_path(meta, name)
+    local value = meta[name]
+    if value == nil then
+        return nil
+    end
+    local path = pandoc.utils.stringify(value)
+    if path == "" then
+        return nil
+    end
+    return path
+end
+
+local function with_trailing_separator(path)
+    return pandoc.path.normalize(path):gsub("[/\\]+$", "") .. "/"
+end
+
+local function resolve_resource_root(meta)
+    local start = document_dir()
+    local root = find_project_root(start)
+    local option = metadata_path(meta, "resource_root")
+
+    if option then
+        if pandoc.path.is_absolute(option) then
+            return with_trailing_separator(option)
+        end
+        return with_trailing_separator(pandoc.path.join({ root or start, option }))
+    end
+
+    if root then
+        return with_trailing_separator(pandoc.path.join({ root, "assets" }))
+    end
+
+    return default_resource_root
+end
+
+local resource_root = default_resource_root
+
+local function Configure(meta)
+    resource_root = resolve_resource_root(meta)
 end
 
 local function ImageSyntax(elem)
@@ -48,6 +120,6 @@ local function FilterTags(elem)
 end
 
 return {
-    { Str = FilterTags },
+    { Meta = Configure, Str = FilterTags },
     { Str = ImageSyntax }
 }
