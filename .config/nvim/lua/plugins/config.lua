@@ -273,6 +273,28 @@ config.obsidian = {
     opts = obsidian.opts,
 }
 
+config["code-runner"] = {
+    "CRAG666/code_runner.nvim",
+    main = "code_runner",
+    cmd = { "RunCode", "RunFile", "RunProject", "RunClose" },
+    keys = {
+        { "<leader>rr", "<Cmd>RunCode<CR>", desc = "run code", silent = true },
+        { "<leader>rf", "<Cmd>RunFile<CR>", desc = "run file", silent = true },
+        { "<leader>rp", "<Cmd>RunProject<CR>", desc = "run project", silent = true },
+        { "<leader>rc", "<Cmd>RunClose<CR>", desc = "close runner", silent = true },
+    },
+    opts = {
+        mode = "float",
+        float = {
+            border = "rounded",
+        },
+        filetype = {
+            markdown = "cd $dir && pandoc $fileName -o output/$fileNameWithoutExt.pdf --defaults=md2pdf",
+            python = "cd $dir && uv run $fileName",
+        },
+    },
+}
+
 config.neogit = {
     "NeogitOrg/neogit",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -793,6 +815,7 @@ config["which-key"] = {
             { "<leader>l", group = "+lsp" },
             { "<leader>o", group = "+obsidian" },
             { "<leader>q", group = "+quickfix" },
+            { "<leader>r", group = "+run" },
             { "<leader>s", group = "+shell" },
             { "<leader>t", group = "+telescope" },
             { "<leader>u", group = "+utils" },

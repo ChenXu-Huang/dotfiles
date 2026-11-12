@@ -113,6 +113,7 @@ Neovide opened from Finder/Dock (or any launcher that does not read `.zshrc`) in
 | `autopairs` | windwp/nvim-autopairs | Automatic bracket/quote pairing |
 | `better-escape` | max397574/better-escape.nvim | Leaves insert mode on `jj` without the `timeoutlen` delay |
 | `blink` | saghen/blink.cmp | Completion engine (with friendly-snippets and blink.lib); snippets expand through its `luasnip` preset |
+| `code-runner` | CRAG666/code_runner.nvim | Runs code in a floating terminal (`<leader>rr`/`rf`/`rp`/`rc`); the Markdown recipe builds `output/<name>.pdf` with the pandoc `md2pdf` defaults and Python runs through `uv` |
 | `colorizer` | NvChad/nvim-colorizer.lua | Inline color previews |
 | `dashboard` | nvimdev/dashboard-nvim | Start screen |
 | `fidget` | j-hui/fidget.nvim | LSP progress notifications |
@@ -238,7 +239,7 @@ The split follows when zsh sources each file:
 
 ## Pandoc Configuration
 
-`.config/pandoc/` is managed as pandoc's user data directory: the setup scripts link it over `%APPDATA%\pandoc` (a junction on Windows) or `${XDG_DATA_HOME:-~/.local/share}/pandoc` (a symbolic link on macOS and Linux). `defaults/md2pdf.yaml` packages the markdown-to-PDF options (xelatex, the eisvogel template from `templates/`, the `convert.lua` filter through `${.}`), so the code-runner recipe is only `pandoc <file> --defaults=md2pdf`; the `chinese_fonts.sty` it loads comes from the TeX tree (registered as a custom MiKTeX root on Windows), not from the data directory. `convert.lua` resolves Obsidian-style `![[image|width]]` embeds against a resource root that is derived per document: a front-matter `resource_root` option wins — an absolute path is used as-is, a relative one is joined to the project root (or to the document's own directory when there is none) — and otherwise the root is `assets/` under the nearest ancestor of the Markdown file that contains a `.git` entry, or `assets/` inside the pandoc data directory when no such ancestor exists.
+`.config/pandoc/` is managed as pandoc's user data directory: the setup scripts link it over `%APPDATA%\pandoc` (a junction on Windows) or `${XDG_DATA_HOME:-~/.local/share}/pandoc` (a symbolic link on macOS and Linux). `defaults/md2pdf.yaml` packages the markdown-to-PDF options (xelatex, the eisvogel template from `templates/`, the `convert.lua` filter through `${.}`), so the code runner's Markdown recipe only adds the `-o output/<name>.pdf` destination; the `chinese_fonts.sty` it loads comes from the TeX tree (registered as a custom MiKTeX root on Windows), not from the data directory. `convert.lua` resolves Obsidian-style `![[image|width]]` embeds against a resource root that is derived per document: a front-matter `resource_root` option wins — an absolute path is used as-is, a relative one is joined to the project root (or to the document's own directory when there is none) — and otherwise the root is `assets/` under the nearest ancestor of the Markdown file that contains a `.git` entry, or `assets/` inside the pandoc data directory when no such ancestor exists.
 
 ## Conventions
 
