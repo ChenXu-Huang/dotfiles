@@ -131,6 +131,4 @@
     "[latex]": {
         "editor.defaultFormatter": "mathematic.vscode-latex"
     },
-    // notes config
-    "foam.templates.folder": "templates"
 }

@@ -41,6 +41,7 @@ This repository manages personal development-environment configuration as code. 
 │           │   └── extra.lua       lspsaga and trouble sections
 │           ├── plugins/
 │           │   ├── config.lua     Central plugin table (single source for plugins)
+│           │   ├── obsidian.lua   Obsidian vault detection and plugin options
 │           │   ├── pack.lua       vim.pack specs, lazy loading and the VeryLazy event
 │           │   ├── colorscheme.lua  Colorscheme list and switching
 │           │   ├── init.lua       Requires the table, colorschemes and `lsp/`
@@ -127,6 +128,7 @@ Neovide opened from Finder/Dock (or any launcher that does not read `.zshrc`) in
 | `mason` / `mason-lspconfig` | mason-org/mason.nvim, mason-lspconfig.nvim | LSP server wiring on nvim-lspconfig; installs the enabled servers and their formatters |
 | `neogit` | NeogitOrg/neogit | Git interface (`<leader>gt`) |
 | `null-ls` (+ `none-ls-extras`) | nvimtools/none-ls.nvim | Dedicated formatting sources: ruff (Python) and stylua (Lua); `<leader>lf` formats through it |
+| `obsidian` | obsidian-nvim/obsidian.nvim | Obsidian vault notes: Markdown files under a `.obsidian` tree lazy-load it with options derived from the vault's own configuration; `<leader>on`/`od`/`os`/`ob`/`ot` for new note, today's note, quick switch, backlinks and tags |
 | `rustaceanvim` | mrcjkb/rustaceanvim | Rust tooling, gated on `Vellum.lsp.rust.enabled` |
 | `scrollview` | dstein64/nvim-scrollview | Scrollbar |
 | `surround` | kylechui/nvim-surround | Surrounding-pair editing |
@@ -149,6 +151,10 @@ The terminal is not a plugin: `core/terminal.lua` builds it on Neovim's built-in
 ### Snippets
 
 Snippets are LuaSnip's, and blink.cmp expands them through its `luasnip` preset. The plugin section's `config` runs two loaders: `from_lua` loads the native modules under `lua/snippets/` — `utils.lua` holds the shared helpers (math-mode detection, the greek/prefix/arrow tables, the matrix builder and the delimiter toggles), `math.lua` the math autosnippets, and `tex.lua`/ `markdown.lua` the filetype-specific ones that both extend `math.lua` — while `from_vscode` loads the JSON snippets in `snippets/` immediately and friendly-snippets once blink.cmp is up (a one-shot `User VellumAfter blink-cmp` autocmd). `enable_autosnippets` and the jsregexp engine (`make install_jsregexp` on install) back the regex-triggered autosnippets, and `plaintex` extends the `tex` snippets.
+
+### Obsidian
+
+`plugins/obsidian.lua` keeps the notes integration out of the table. `vault_path()` resolves the vault from `OBSIDIAN_VAULT` and falls back to `~/Projects/MyLib`; the `obsidian` section is enabled only while that directory exists and loads from the custom event, the `Obsidian` command or its keymaps. `register_trigger()` installs a `BufReadPre`/`BufNewFile` autocommand for `*.md`/`*.markdown` files that fires the custom `User VellumObsidian` event only when the file sits under a directory containing `.obsidian`, then removes itself once `obsidian.nvim` has loaded. `opts()` reads the vault's own `.obsidian/app.json`, `templates.json` and `daily-notes.json` — link style (`wiki` unless `useMarkdownLinks` is set), link format and link auto-update, template folder, daily-note folder, template and date format — falling back to defaults when a file is missing or malformed; note ids come from the title with filename-invalid characters stripped (or a timestamp), frontmatter is disabled and attachments live in `assets/`.
 
 ### Terminal
 

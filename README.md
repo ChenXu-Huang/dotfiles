@@ -11,6 +11,7 @@ Personal development-environment configuration as code: a [Neovim](https://neovi
 - Optional: **VS Code** with the [vscode-neovim](https://marketplace.visualstudio.com/items?itemName=asvetliakov.vscode-neovim) extension — the same configuration detects it and trims itself down, see [VS Code (vscode-neovim)](#vs-code-vscode-neovim).
 - Optional: **PowerShell 7** on Windows — `scripts/setup.ps1` links the profile in `.config/powershell/` into the per-user configuration directory that `pwsh` reads.
 - Optional: an agent CLI that reads skills from `~/.agents/skills` or `~/.claude/skills` — the setup scripts link `.agents/skills` into both.
+- Optional: **Obsidian** — the notes integration loads only when its vault directory exists (`$OBSIDIAN_VAULT`, defaulting to `~/Projects/MyLib`), so the `<leader>o*` mappings stay inactive without it.
 
 ## Installation
 
@@ -110,7 +111,7 @@ Inside `.config/nvim/`:
 - `lua/lsp/` holds the LSP wiring: the per-server settings table, the mason and mason-lspconfig sections, completion, formatting and the extra sections.
 - `lua/core/vscode.lua` is loaded only when Neovim runs inside vscode-neovim.
 
-The plugin set covers LSP and tooling (mason, mason-lspconfig, nvim-lspconfig, none-ls, lspsaga, trouble, fidget), completion (blink.cmp with blink.lib, LuaSnip and friendly-snippets), navigation (nvim-tree, telescope with fzf-native, hop), editing (autopairs, surround, indent-blankline, grug-far, better-escape), folding (nvim-ufo), git (gitsigns, neogit) and appearance (lualine, dashboard, which-key, scrollview, colorful-winsep, transparent, colorizer, todo-comments, markdown-preview). Eight colorschemes ship with it — tokyonight, kanagawa, nightfox, gruvbox, everforest, cyberdream, monet and vague — and `<C-k><C-t>` opens a picker that previews them live; the choice is remembered across sessions.
+The plugin set covers LSP and tooling (mason, mason-lspconfig, nvim-lspconfig, none-ls, lspsaga, trouble, fidget), completion (blink.cmp with blink.lib, LuaSnip and friendly-snippets), navigation (nvim-tree, telescope with fzf-native, hop), notes (obsidian.nvim), editing (autopairs, surround, indent-blankline, grug-far, better-escape), folding (nvim-ufo), git (gitsigns, neogit) and appearance (lualine, dashboard, which-key, scrollview, colorful-winsep, transparent, colorizer, todo-comments, markdown-preview). Eight colorschemes ship with it — tokyonight, kanagawa, nightfox, gruvbox, everforest, cyberdream, monet and vague — and `<C-k><C-t>` opens a picker that previews them live; the choice is remembered across sessions.
 
 Syntax highlighting comes from the `main` branch of nvim-treesitter: the parsers in `ensure_installed` (BibTeX, C, C#, C++, CSS, Dockerfile, fish, Go, HTML, INI, JavaScript/TypeScript, JSON, LaTeX, Lua, Markdown, Python, query, Rust, TOML, Typst, TSX, Vim, Vimdoc and YAML) are installed on first start, the highlighter and its `indentexpr` attach per filetype, and rainbow-delimiters colors the bracket pairs. Language-specific plugins — flutter-tools, rustaceanvim and typst-preview — switch on with the `enabled` flag of the matching `Vellum.lsp` entry. The terminal is Neovim's built-in one (`lua/core/terminal.lua`).
 
@@ -163,6 +164,8 @@ Adding a plugin means adding one section to `lua/plugins/config.lua`; the field-
 | `<leader>gt` | Neogit |
 | `<leader>gg` | Lazygit in a floating terminal |
 | `<leader>hp` | Hop to word |
+| `<leader>on` / `<leader>od` | New note / today's note (obsidian.nvim) |
+| `<leader>os` / `<leader>ob` / `<leader>ot` | Switch note / backlinks / tags |
 | `<leader>ug` | Project-wide find and replace (grug-far) |
 | `<leader>ul` / `<leader>uu` | Plugin list / undotree |
 | `<leader>uc` / `<leader>ut` | View configuration / todo list |

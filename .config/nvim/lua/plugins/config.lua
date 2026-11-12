@@ -1,6 +1,9 @@
 local config = {}
 local symbols = Vellum.symbols
 local config_root = vim.fn.stdpath("config")
+local obsidian = require("plugins.obsidian")
+
+obsidian.register_trigger()
 
 config.colorizer = {
     "NvChad/nvim-colorizer.lua",
@@ -251,6 +254,23 @@ config["markdown-preview"] = {
             silent = true,
         },
     },
+}
+
+config.obsidian = {
+    "obsidian-nvim/obsidian.nvim",
+    event = "VellumObsidian",
+    cmd = "Obsidian",
+    enabled = function()
+        return vim.uv.fs_stat(obsidian.vault_path()) ~= nil
+    end,
+    keys = {
+        { "<leader>on", "<Cmd>Obsidian new<CR>", desc = "new note", silent = true },
+        { "<leader>od", "<Cmd>Obsidian today<CR>", desc = "today's note", silent = true },
+        { "<leader>os", "<Cmd>Obsidian quick_switch<CR>", desc = "switch note", silent = true },
+        { "<leader>ob", "<Cmd>Obsidian backlinks<CR>", desc = "backlinks", silent = true },
+        { "<leader>ot", "<Cmd>Obsidian tags<CR>", desc = "tags", silent = true },
+    },
+    opts = obsidian.opts,
 }
 
 config.neogit = {
@@ -771,6 +791,7 @@ config["which-key"] = {
             { "<leader>g", group = "+git" },
             { "<leader>h", group = "+hop" },
             { "<leader>l", group = "+lsp" },
+            { "<leader>o", group = "+obsidian" },
             { "<leader>q", group = "+quickfix" },
             { "<leader>s", group = "+shell" },
             { "<leader>t", group = "+telescope" },
